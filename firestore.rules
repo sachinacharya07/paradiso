@@ -1,11 +1,41 @@
-rules_version='2';
-service cloud.firestore{match /databases/{db}/documents{
- function admin(){return request.auth!=null&&request.auth.token.email=='your@gmail.com';}
- match /entries/{i}{allow read:if true;allow write:if admin();}
- match /guestbook/{i}{
-  allow read:if resource.data.approved==true||admin();
-  allow create:if request.resource.data.approved==false&&request.resource.data.msg.size()<=300&&request.resource.data.name.size()<=40;
-  allow update,delete:if admin();}
- match /meta/status{allow read:if true;allow write:if admin();}
- match /meta/counter{allow read:if true;allow create:if request.resource.data.n==1;allow update:if request.resource.data.n==resource.data.n+1;}
-}}
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // Helper function to verify admin user by email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'viasachinbhattacharya@gmail.com';
+    }
+
+    // Entries: Anyone can read, only admin can create/update/delete
+    match /entries/{i} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Guestbook: Public can read approved entries; anyone can submit unapproved entry with limits
+    match /guestbook/{i} {
+      allow read: if (resource != null && resource.data.approved == true) || isAdmin();
+      allow create: if request.resource.data.approved == false
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 40
+                    && request.resource.data.msg is string
+                    && request.resource.data.msg.size() > 0
+                    && request.resource.data.msg.size() <= 300;
+      allow update, delete: if isAdmin();
+    }
+
+    // Meta status: Public can read, only admin can write
+    match /meta/status {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Meta visitor counter: Public can read, increment only
+    match /meta/counter {
+      allow read: if true;
+      allow create: if request.resource.data.n == 1;
+      allow update: if request.resource.data.n == resource.data.n + 1;
+    }
+  }
+}

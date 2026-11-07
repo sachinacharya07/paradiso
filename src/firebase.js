@@ -1,7 +1,22 @@
-import {initializeApp} from 'firebase/app'
-import {getFirestore} from 'firebase/firestore'
-import {getAuth,GoogleAuthProvider} from 'firebase/auth'
-const e=import.meta.env
-const app=initializeApp({apiKey:e.VITE_FB_KEY,authDomain:e.VITE_FB_DOMAIN,projectId:e.VITE_FB_PROJECT,appId:e.VITE_FB_APP})
-export const db=getFirestore(app),auth=getAuth(app),provider=new GoogleAuthProvider()
-export const ADMIN=e.VITE_ADMIN_EMAIL,SITE=e.VITE_SITE_NAME||'paradiso',CLOUD=e.VITE_CLOUD_NAME,PRESET=e.VITE_CLOUD_PRESET,MUSIC=e.VITE_MUSIC_URL
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+
+const e = import.meta.env;
+
+const app = initializeApp({
+  apiKey: e.VITE_FB_KEY,
+  authDomain: e.VITE_FB_DOMAIN,
+  projectId: e.VITE_FB_PROJECT,
+  appId: e.VITE_FB_APP,
+});
+
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
+
+export const ADMIN = e.VITE_ADMIN_EMAIL;
+export const SITE = e.VITE_SITE_NAME || 'paradiso';
+export const CLOUD = e.VITE_CLOUD_NAME;
+export const PRESET = e.VITE_CLOUD_PRESET;
+export const MUSIC = e.VITE_MUSIC_URL;
