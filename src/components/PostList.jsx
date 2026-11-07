@@ -9,16 +9,54 @@ import {
   limit,
   startAfter,
 } from 'firebase/firestore';
-import { SHORT, PAGE_SIZE } from '../constants';
+import { PAGE_SIZE } from '../constants';
 import { useToast } from './Toast';
-import Card from './Card';
 import Scrapbook from './Scrapbook';
 import Loader from './Loader';
 
+// Thematic section components
+import MovieTicket from './sections/MovieTicket';
+import PoemNote from './sections/PoemNote';
+import BucketDiary from './sections/BucketDiary';
+import StickyThought from './sections/StickyThought';
+import AirmailLetter from './sections/AirmailLetter';
+import RolodexFind from './sections/RolodexFind';
+import MetroTimeline from './sections/MetroTimeline';
+import QuotePoster from './sections/QuotePoster';
+import ProjectBlueprint from './sections/ProjectBlueprint';
+import IdBadgeFact from './sections/IdBadgeFact';
+import EditorialArticle from './sections/EditorialArticle';
+
 /**
- * PostList component — fetches and displays entries for a given section type.
- * Handles archive mode (all entries) and individual section types.
- * Uses pagination with "Load more" button.
+ * Render an entry using its tailored thematic component
+ */
+export function ThematicCard({ r, admin, onEdit, reload, index }) {
+  switch (r.type) {
+    case 'review':
+      return <MovieTicket r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'poem':
+      return <PoemNote r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'bucket':
+      return <BucketDiary r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'thought':
+      return <StickyThought r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'letter':
+      return <AirmailLetter r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'find':
+      return <RolodexFind r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'quote':
+      return <QuotePoster r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'project':
+      return <ProjectBlueprint r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    case 'fact':
+      return <IdBadgeFact r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    default:
+      return <EditorialArticle r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+  }
+}
+
+/**
+ * PostList component — routes to the appropriate bespoke layout per theme.
  */
 export default function PostList({ t, admin = false, onEdit }) {
   const [rows, setRows] = useState(null);
@@ -51,7 +89,6 @@ export default function PostList({ t, admin = false, onEdit }) {
       const snap = await getDocs(q);
       const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // Update last doc for pagination
       if (snap.docs.length > 0) {
         lastDocRef.current = snap.docs[snap.docs.length - 1];
       }
@@ -64,7 +101,7 @@ export default function PostList({ t, admin = false, onEdit }) {
       }
     } catch (err) {
       setError(err.message);
-      toast('Failed to load entries: ' + err.message, 'error');
+      toast('Failed to load: ' + err.message, 'error');
       if (!loadMore) setRows([]);
     }
   }, [buildQuery, toast]);
@@ -91,24 +128,56 @@ export default function PostList({ t, admin = false, onEdit }) {
 
   if (!rows) return <Loader count={3} />;
 
+  // 1. Scrapbook: Draggable Collage View
   if (t === 'scrap') {
     return <Scrapbook items={rows.filter(r => r.image)} />;
+  }
+
+  // 2. Timeline: Horizontal Metro Subway Track View
+  if (t === 'timeline') {
+    return (
+      <MetroTimeline
+        items={rows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
   }
 
   if (!rows.length) {
     return <p className="empty-state">nothing here yet.</p>;
   }
 
+  // Choose container class depending on category theme
+  const containerClass =
+    t === 'review'
+      ? 'movie-tickets-container'
+      : t === 'thought'
+        ? 'sticky-thoughts-masonry'
+        : t === 'poem'
+          ? 'poems-notebook'
+          : t === 'bucket'
+            ? 'bucket-diary-list'
+            : t === 'find'
+              ? 'rolodex-list'
+              : t === 'quote'
+                ? 'quotes-masonry'
+                : t === 'project'
+                  ? 'projects-workbench-grid'
+                  : t === 'fact'
+                    ? 'id-badges-grid'
+                    : 'editorial-feed';
+
   return (
-    <div className="post-list">
+    <div className={`thematic-section-wrap ${containerClass}`}>
       {rows.map((r, i) => (
-        <Card
+        <ThematicCard
           key={r.id}
           r={r}
           admin={admin}
           onEdit={onEdit}
           reload={handleReload}
-          open={SHORT.includes(r.type)}
           index={i}
         />
       ))}

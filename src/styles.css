@@ -1049,3 +1049,1289 @@ select:focus-visible {
     right: 8px;
   }
 }
+
+
+/* ==========================================================================
+   THEMATIC SECTION LAYOUTS (Bespoke per category)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. MOVIES (▶) — Cinema Ticket Stubs
+   -------------------------------------------------------------------------- */
+.movie-tickets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px 0;
+}
+
+.movie-ticket {
+  display: flex;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-ticket:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px var(--shadow);
+}
+
+.ticket-main {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: VT323, monospace;
+  font-size: 16px;
+  letter-spacing: 1.5px;
+  border-bottom: 1px dashed var(--card-border);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.ticket-badge {
+  color: var(--neon-rose);
+  font-weight: bold;
+}
+
+.ticket-date {
+  opacity: 0.7;
+}
+
+.ticket-content-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ticket-poster-wrap {
+  width: 90px;
+  flex-shrink: 0;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  background: #000;
+  overflow: hidden;
+}
+
+.ticket-poster {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
+.ticket-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-title {
+  margin: 0 0 8px 0;
+  font-family: VT323, monospace;
+  font-size: 26px;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.1;
+  transition: color 0.15s;
+}
+
+.ticket-title:hover {
+  color: var(--neon-rose);
+}
+
+.ticket-review {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.ticket-review.collapsed {
+  max-height: 72px;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(180deg, #000 60%, transparent);
+}
+
+.ticket-toggle-btn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-family: VT323, monospace;
+  font-size: 16px;
+  color: var(--neon-sky);
+  padding: 4px 0;
+  cursor: pointer;
+  min-height: auto;
+}
+
+.ticket-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* Ticket Perforation */
+.ticket-perforation {
+  width: 16px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.perf-line {
+  width: 1px;
+  border-left: 2px dashed var(--ink);
+  height: 100%;
+}
+
+.perf-notch {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--bg);
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  z-index: 2;
+}
+
+.notch-top {
+  top: -10px;
+}
+
+.notch-bottom {
+  bottom: -10px;
+}
+
+/* Tear-off Stub */
+.ticket-stub {
+  width: 130px;
+  flex-shrink: 0;
+  background: var(--input-bg);
+  border-left: none;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.stub-tag {
+  font-family: VT323, monospace;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--ink);
+}
+
+.stub-rating-box {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  padding: 6px 10px;
+  width: 90%;
+}
+
+.stub-rating-label {
+  display: block;
+  font-family: VT323, monospace;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.stub-rating-val {
+  display: block;
+  font-family: VT323, monospace;
+  font-size: 24px;
+  color: var(--neon-rose);
+  font-weight: bold;
+}
+
+.stub-barcode {
+  width: 100%;
+}
+
+.barcode-bars {
+  height: 24px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0 2px,
+    transparent 2px 4px,
+    var(--ink) 4px 7px,
+    transparent 7px 9px,
+    var(--ink) 9px 10px,
+    transparent 10px 13px
+  );
+  opacity: 0.7;
+}
+
+.barcode-num {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  display: block;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+/* Mobile ticket stacking */
+@media (max-width: 640px) {
+  .movie-ticket {
+    flex-direction: column;
+  }
+  .ticket-perforation {
+    width: 100%;
+    height: 16px;
+  }
+  .perf-line {
+    width: 100%;
+    height: 1px;
+    border-left: none;
+    border-top: 2px dashed var(--ink);
+  }
+  .notch-top {
+    left: -10px;
+    top: -2px;
+  }
+  .notch-bottom {
+    right: -10px;
+    bottom: -2px;
+    top: auto;
+  }
+  .ticket-stub {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 16px;
+  }
+  .stub-rating-box {
+    width: auto;
+  }
+  .stub-barcode {
+    width: 80px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. POEMS (❀) — Typewriter Notebook
+   -------------------------------------------------------------------------- */
+.poems-notebook {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 12px 0;
+}
+
+.poem-note {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 2px;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(47, 43, 56, 0.08) 28px
+  );
+  line-height: 28px;
+}
+
+[data-theme="dark"] .poem-note {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(216, 210, 224, 0.08) 28px
+  );
+}
+
+.poem-paper {
+  display: flex;
+}
+
+.poem-margin {
+  width: 50px;
+  border-right: 2px solid var(--rose);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.poem-glyph {
+  font-size: 18px;
+  color: var(--rose);
+}
+
+.poem-date-stamp {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  opacity: 0.5;
+  letter-spacing: 1px;
+}
+
+.poem-body-wrap {
+  flex: 1;
+  padding: 20px 24px;
+}
+
+.poem-title {
+  margin: 0 0 6px 0;
+  font-family: VT323, monospace;
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 28px;
+}
+
+.poem-epigraph {
+  font-style: italic;
+  font-size: 13px;
+  opacity: 0.65;
+  margin-bottom: 12px;
+  line-height: 28px;
+}
+
+.poem-image-wrap {
+  max-width: 320px;
+  margin: 12px 0;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+}
+
+.poem-verses {
+  font-family: 'Space Mono', 'Noto Sans Devanagari', 'Noto Sans Bengali', serif;
+  font-size: 15px;
+  line-height: 28px;
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+
+.poem-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* --------------------------------------------------------------------------
+   3. BUCKET LIST (☑) — Simple Stamped Diary
+   -------------------------------------------------------------------------- */
+.bucket-diary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bucket-diary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px var(--shadow);
+  border-left: 6px solid var(--rose);
+  border-radius: 2px;
+}
+
+.bucket-diary-item.is-completed {
+  border-left-color: var(--sage);
+  opacity: 0.85;
+}
+
+.bucket-bullet {
+  font-size: 20px;
+  margin-top: -2px;
+}
+
+.bullet-checked {
+  color: var(--sage);
+  font-weight: bold;
+}
+
+.bullet-empty {
+  color: var(--rose);
+}
+
+.bucket-content {
+  flex: 1;
+}
+
+.bucket-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bucket-title {
+  margin: 0;
+  font-family: VT323, monospace;
+  font-size: 22px;
+  color: var(--ink);
+}
+
+.is-completed .bucket-title {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.bucket-stamp {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 1px dashed currentColor;
+  letter-spacing: 0.5px;
+}
+
+.done-stamp {
+  color: #386b3e;
+  background: #a8bfa933;
+}
+
+.pending-stamp {
+  color: #9c5c70;
+  background: #c9a6b433;
+}
+
+.bucket-notes {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.bucket-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   4. THOUGHTS (☁) — Corkboard Pastel Sticky Notes
+   -------------------------------------------------------------------------- */
+.sticky-thoughts-masonry {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.sticky-thought {
+  position: relative;
+  padding: 24px 18px 16px;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sticky-thought:hover {
+  transform: rotate(0deg) scale(1.02) !important;
+  box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.22);
+  z-index: 3;
+}
+
+.sticky-cream {
+  background: #fbf5ea;
+  color: #2f2b38;
+}
+
+.sticky-rose {
+  background: #fae6ec;
+  color: #2f2b38;
+}
+
+.sticky-sage {
+  background: #eaf3ea;
+  color: #2f2b38;
+}
+
+.sticky-sky {
+  background: #e8f2f7;
+  color: #2f2b38;
+}
+
+[data-theme="dark"] .sticky-cream {
+  background: #332d29;
+  color: #efe7dc;
+}
+
+[data-theme="dark"] .sticky-rose {
+  background: #392b32;
+  color: #efe7dc;
+}
+
+[data-theme="dark"] .sticky-sage {
+  background: #2b362c;
+  color: #efe7dc;
+}
+
+[data-theme="dark"] .sticky-sky {
+  background: #29343c;
+  color: #efe7dc;
+}
+
+.sticky-pin {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.sticky-title {
+  font-family: VT323, monospace;
+  font-size: 20px;
+  margin: 0 0 6px 0;
+}
+
+.sticky-body {
+  font-size: 14px;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.sticky-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  border-top: 1px dashed rgba(47, 43, 56, 0.2);
+  padding-top: 6px;
+}
+
+.sticky-time {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   5. LETTERS (✉) — Vintage Airmail Envelope & Stationery
+   -------------------------------------------------------------------------- */
+.letters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.airmail-letter {
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px var(--shadow);
+  border-radius: 2px;
+  padding: 8px;
+  background-image: repeating-linear-gradient(
+    135deg,
+    #d9534f 0 10px,
+    transparent 10px 14px,
+    #428bca 14px 24px,
+    transparent 24px 28px
+  );
+}
+
+[data-theme="dark"] .airmail-letter {
+  background-image: repeating-linear-gradient(
+    135deg,
+    #8b3330 0 10px,
+    transparent 10px 14px,
+    #2a5275 14px 24px,
+    transparent 24px 28px
+  );
+}
+
+.airmail-inner {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 20px 24px;
+}
+
+.airmail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.airmail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.airmail-to,
+.airmail-from {
+  font-size: 14px;
+}
+
+.airmail-tag {
+  font-family: VT323, monospace;
+  font-size: 16px;
+  color: var(--neon-rose);
+  margin-right: 6px;
+}
+
+.airmail-postmark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.postmark-circle {
+  width: 64px;
+  height: 64px;
+  border: 2px dashed #9c5c70;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9c5c70;
+  font-family: VT323, monospace;
+  font-size: 10px;
+  text-align: center;
+  transform: rotate(-12deg);
+}
+
+.postage-stamp {
+  width: 44px;
+  height: 52px;
+  border: 2px dotted #428bca;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #428bca;
+  font-size: 18px;
+}
+
+.postage-stamp small {
+  font-size: 8px;
+  font-family: monospace;
+}
+
+.airmail-divider {
+  border: none;
+  border-top: 1px dashed var(--card-border);
+  margin: 16px 0;
+}
+
+.airmail-body {
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.airmail-signoff {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed var(--card-border);
+  padding-top: 10px;
+}
+
+.airmail-pen {
+  font-style: italic;
+  font-size: 14px;
+  color: var(--neon-rose);
+}
+
+/* --------------------------------------------------------------------------
+   6. FINDS (⌕) — Retro Rolodex / Bookmark Cards
+   -------------------------------------------------------------------------- */
+.rolodex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rolodex-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rolodex-tab {
+  background: linear-gradient(90deg, var(--rose), var(--sky));
+  border-bottom: 2px solid var(--ink);
+  padding: 4px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: VT323, monospace;
+  font-size: 16px;
+}
+
+.rolodex-domain-pill {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  border: 1px solid var(--ink);
+}
+
+.rolodex-body {
+  padding: 16px 18px;
+}
+
+.rolodex-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.rolodex-title {
+  margin: 0;
+  font-family: VT323, monospace;
+  font-size: 24px;
+}
+
+.rolodex-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.rolodex-title a:hover {
+  color: var(--neon-rose);
+}
+
+.rolodex-visit-btn {
+  background: var(--sage);
+  color: var(--ink);
+  font-family: VT323, monospace;
+  font-size: 18px;
+  padding: 4px 12px;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.rolodex-visit-btn:hover {
+  background: var(--neon-sky);
+}
+
+.rolodex-notes {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.rolodex-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  border-top: 1px dashed var(--card-border);
+  padding-top: 6px;
+}
+
+.rolodex-date {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   7. TIMELINE (◷) — Horizontal Metro Transit Map
+   -------------------------------------------------------------------------- */
+.metro-timeline-container {
+  padding: 10px 0 20px;
+}
+
+.metro-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: VT323, monospace;
+  font-size: 16px;
+  padding: 6px 12px;
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+  margin-bottom: 24px;
+}
+
+.metro-line-badge {
+  color: var(--neon-rose);
+  font-weight: bold;
+}
+
+.metro-sub {
+  opacity: 0.6;
+}
+
+.metro-track-scroll {
+  overflow-x: auto;
+  padding: 30px 10px 40px;
+  scrollbar-width: thin;
+}
+
+.metro-track {
+  display: flex;
+  position: relative;
+  min-width: max-content;
+  align-items: center;
+  padding: 0 40px;
+}
+
+.metro-rail-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--rose), var(--neon-sky), var(--sage));
+  border: 2px solid var(--ink);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.metro-station {
+  position: relative;
+  z-index: 2;
+  margin: 0 28px;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metro-node {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--ink);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 4px var(--neon-sky);
+  margin: 12px 0;
+}
+
+.metro-node-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.metro-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  padding: 14px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.station-up {
+  flex-direction: column-reverse;
+  margin-bottom: 120px;
+}
+
+.station-down {
+  flex-direction: column;
+  margin-top: 120px;
+}
+
+.metro-station-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: VT323, monospace;
+  font-size: 16px;
+  color: var(--neon-rose);
+}
+
+.metro-station-title {
+  margin: 4px 0 6px;
+  font-family: VT323, monospace;
+  font-size: 22px;
+}
+
+.metro-station-desc {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.metro-image-wrap {
+  margin: 6px 0;
+  border: 1px solid var(--ink);
+}
+
+.metro-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   8. QUOTES (❝) — Bold Typographic Posters
+   -------------------------------------------------------------------------- */
+.quotes-masonry {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quote-poster {
+  position: relative;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px var(--shadow);
+  padding: 24px 28px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quote-mark-watermark {
+  position: absolute;
+  top: -20px;
+  left: 10px;
+  font-size: 140px;
+  font-family: Georgia, serif;
+  color: var(--neon-rose);
+  opacity: 0.15;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.quote-content {
+  position: relative;
+  z-index: 1;
+}
+
+.quote-text {
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 0;
+}
+
+.quote-attribution {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: VT323, monospace;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.quote-dash {
+  color: var(--neon-rose);
+}
+
+.quote-author {
+  font-style: normal;
+  font-weight: bold;
+}
+
+.quote-source {
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.quote-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   9. WORK & PROJECTS (⚙) — Blueprint Workbench
+   -------------------------------------------------------------------------- */
+.projects-workbench-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.project-blueprint {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.blueprint-grid-header {
+  background: linear-gradient(90deg, var(--sky), var(--sage));
+  border-bottom: 2px solid var(--ink);
+  padding: 4px 10px;
+  display: flex;
+  justify-content: space-between;
+  font-family: VT323, monospace;
+  font-size: 16px;
+}
+
+.blueprint-preview {
+  border-bottom: 2px solid var(--ink);
+  max-height: 180px;
+  overflow: hidden;
+}
+
+.blueprint-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.blueprint-info {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.blueprint-title {
+  margin: 0 0 8px;
+  font-family: VT323, monospace;
+  font-size: 24px;
+}
+
+.blueprint-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.blueprint-tech-pill {
+  background: var(--input-bg);
+  border: 1px solid var(--ink);
+  padding: 2px 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  border-radius: 2px;
+}
+
+.blueprint-desc {
+  font-size: 14px;
+  flex: 1;
+}
+
+.blueprint-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--card-border);
+}
+
+.blueprint-btn-demo {
+  background: var(--neon-rose);
+  color: #fff;
+  font-family: VT323, monospace;
+  font-size: 18px;
+  padding: 4px 12px;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.blueprint-btn-demo:hover {
+  background: var(--rose);
+}
+
+/* --------------------------------------------------------------------------
+   10. ABOUT ME (☺) — Retro ID Badges / Trivia Cards
+   -------------------------------------------------------------------------- */
+.id-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.id-badge-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.id-badge-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.id-num {
+  font-family: VT323, monospace;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--neon-rose);
+  margin-right: 8px;
+}
+
+.id-class {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.id-stamp-circle {
+  font-family: VT323, monospace;
+  font-size: 14px;
+  color: var(--sage);
+  border: 1px dashed var(--sage);
+  padding: 1px 4px;
+}
+
+.id-badge-body {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.id-badge-photo {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--ink);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.id-badge-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.id-badge-title {
+  margin: 0 0 4px;
+  font-family: VT323, monospace;
+  font-size: 22px;
+}
+
+.id-badge-desc {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.id-badge-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--card-border);
+}
+
+.id-barcode {
+  font-family: monospace;
+  font-size: 12px;
+  opacity: 0.5;
+  letter-spacing: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   11. EDITORIAL ARTICLES (Essays, Updates, Creative, Interests)
+   -------------------------------------------------------------------------- */
+.editorial-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.editorial-article {
+  padding: 12px 0 24px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.editorial-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.editorial-category {
+  color: var(--neon-rose);
+  font-weight: bold;
+}
+
+.editorial-title {
+  margin: 0 0 12px;
+  font-family: VT323, monospace;
+  font-size: 32px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.editorial-hero {
+  max-width: 640px;
+  margin: 14px 0;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+}
+
+.editorial-body {
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 640px;
+}
+
+.editorial-preview {
+  max-width: 640px;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.editorial-read-btn {
+  background: var(--input-bg);
+  border: 1px dashed var(--ink);
+  font-family: VT323, monospace;
+  font-size: 18px;
+  padding: 4px 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.editorial-read-btn:hover {
+  background: var(--sage);
+}
+
+.editorial-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
