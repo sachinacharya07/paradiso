@@ -9,10 +9,14 @@ import {
   increment,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { SEC, NAME, VALID_SECTIONS, NOW_ICONS, beep, md } from './constants';
+import { SEC, NAME, VALID_SECTIONS, NOW_ICONS, md } from './constants';
 import { useTheme } from './hooks/useTheme';
+import { useDesktopTheme } from './hooks/useDesktopTheme';
 import { useToast } from './components/Toast';
+import { playBeep, playCassetteClick } from './utils/sound';
+
 import ThemeToggle from './components/ThemeToggle';
+import DesktopContextMenu from './components/DesktopContextMenu';
 import PostList from './components/PostList';
 import Admin from './components/Admin';
 import Guestbook from './components/Guestbook';
@@ -27,9 +31,22 @@ export default function App() {
   const [play, setPlay] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [entryCounts, setEntryCounts] = useState({});
+  const [showSpecs, setShowSpecs] = useState(false);
+  const [liveTrack, setLiveTrack] = useState(null);
+
   const au = useRef(null);
   const toast = useToast();
   const [theme, toggleTheme] = useTheme();
+
+  // Desktop wallpaper, CRT, and sound controls
+  const {
+    wallpaper,
+    setWallpaper,
+    crtMode,
+    cycleCrt,
+    muted,
+    toggleSound,
+  } = useDesktopTheme();
 
   // Validate section — redirect unknown hashes to home
   const validSec = sec && VALID_SECTIONS.has(sec) ? sec : '';
@@ -63,8 +80,7 @@ export default function App() {
     };
     window.addEventListener('hashchange', handleHash);
 
-    // Auth listener with proper cleanup
-    const unsubAuth = onAuthStateChanged(auth, u => {
+    const unsubAuth = onAuthStateChanged(auth, (u) => {
       setAdmin(!!u && u.email === ADMIN);
     });
 
@@ -98,7 +114,7 @@ export default function App() {
       try {
         const snap = await getDocs(collection(db, 'entries'));
         const counts = {};
-        snap.docs.forEach(d => {
+        snap.docs.forEach((d) => {
           const type = d.data().type;
           if (type) counts[type] = (counts[type] || 0) + 1;
         });
@@ -114,7 +130,37 @@ export default function App() {
     };
   }, []);
 
-  // Keyboard shortcuts: Escape to go home
+  // Live Spotify sync via Last.fm API
+  useEffect(() => {
+    if (!st.lastFmUser) return;
+    const fetchLastFm = async () => {
+      try {
+        const res = await fetch(
+          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${encodeURIComponent(
+            st.lastFmUser
+          )}&api_key=94cf9fc7598c1d5ec5bbd240d99ff604&format=json&limit=1`
+        );
+        const data = await res.json();
+        const track = data?.recenttracks?.track?.[0];
+        if (track) {
+          const isNowPlaying = track['@attr']?.nowplaying === 'true';
+          setLiveTrack({
+            title: track.name,
+            artist: track.artist['#text'],
+            isPlaying: isNowPlaying,
+          });
+        }
+      } catch {
+        // silent fail
+      }
+    };
+
+    fetchLastFm();
+    const interval = setInterval(fetchLastFm, 25000);
+    return () => clearInterval(interval);
+  }, [st.lastFmUser]);
+
+  // Keyboard shortcuts: Escape to close modals/windows
   useEffect(() => {
     const handler = (e) => {
       if (
@@ -122,7 +168,9 @@ export default function App() {
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
-        if (rnd) {
+        if (showSpecs) {
+          setShowSpecs(false);
+        } else if (rnd) {
           setRnd(null);
         } else {
           location.hash = '';
@@ -132,7 +180,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [rnd]);
+  }, [rnd, showSpecs]);
 
   // Back to top button visibility
   useEffect(() => {
@@ -143,25 +191,38 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Random entry
-  const random = useCallback(async (e) => {
-    if (e) e.preventDefault();
-    beep();
-    try {
-      const snap = await getDocs(collection(db, 'entries'));
-      const all = snap.docs.map(d => d.data()).filter(d => d.type !== 'letter');
-      const facts = all.filter(d => d.type === 'fact');
-      const pool = Math.random() < 0.5 && facts.length ? facts : all;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      setRnd(pick || { title: 'nothing yet', body: '' });
-    } catch (err) {
-      toast('Failed to load random entry: ' + err.message, 'error');
-    }
-  }, [toast]);
+  // Random entry — strictly personal facts & trivia about Sachin
+  const random = useCallback(
+    async (e) => {
+      if (e) e.preventDefault();
+      playBeep();
+      try {
+        const snap = await getDocs(collection(db, 'entries'));
+        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const facts = all.filter((d) => d.type === 'fact');
+        const thoughts = all.filter((d) => d.type === 'thought');
+        const pool = facts.length > 0 ? facts : thoughts.length > 0 ? thoughts : [];
 
-  // Music toggle
+        if (pool.length > 0) {
+          const pick = pool[Math.floor(Math.random() * pool.length)];
+          setRnd(pick);
+        } else {
+          setRnd({
+            title: 'Hi, I’m Sachin! ☺',
+            body: 'Welcome to Paradiso! Add trivia and fun facts about yourself in the Admin panel under **About Me (☺)** to see them randomly appear here.',
+          });
+        }
+      } catch (err) {
+        toast('Failed to load random fact: ' + err.message, 'error');
+      }
+    },
+    [toast]
+  );
+
+  // Music toggle with cassette latch sound
   const toggleMusic = () => {
     if (!au.current) return;
+    playCassetteClick();
     if (play) {
       au.current.pause();
     } else {
@@ -185,9 +246,20 @@ export default function App() {
 
   return (
     <>
+      {/* Desktop Right-Click Context Menu */}
+      <DesktopContextMenu
+        wallpaper={wallpaper}
+        setWallpaper={setWallpaper}
+        crtMode={crtMode}
+        cycleCrt={cycleCrt}
+        muted={muted}
+        toggleSound={toggleSound}
+        onOpenSpecs={() => setShowSpecs(true)}
+      />
+
       <main
         className="desk"
-        onClick={e => e.target.closest('button,a,.ico') && beep()}
+        onClick={(e) => e.target.closest('button,a,.ico') && playBeep()}
       >
         {/* ===== HOMEPAGE ===== */}
         {!validSec && (
@@ -223,18 +295,47 @@ export default function App() {
                 <span>✍</span>
                 <span className="ico-label">Guestbook</span>
               </a>
-              <a className="ico" href="#" role="button" onClick={random} aria-label="Random entry">
+              <a
+                className="ico"
+                href="#"
+                role="button"
+                onClick={random}
+                aria-label="Random fact about Sachin"
+              >
                 <span>?</span>
                 <span className="ico-label">Random Me</span>
               </a>
             </nav>
 
-            {/* Now status window */}
+            {/* Now status window with live Spotify integration */}
             <section className="win now-window">
-              <div className="bar">now.txt</div>
+              <div className="bar">
+                <span>now.txt</span>
+                {liveTrack && <span className="now-live-tag">LIVE SYNC 🎵</span>}
+              </div>
               <div className="body">
-                {['listening', 'watching', 'reading'].map(
-                  x =>
+                {/* Real-time Spotify / Last.fm Track */}
+                {liveTrack ? (
+                  <p className="now-live-track">
+                    <span className="now-icon">🎧</span>
+                    <b>currently listening:</b> {liveTrack.title} ― {liveTrack.artist}
+                    {liveTrack.isPlaying && (
+                      <span className="live-eq" title="Playing on Spotify">
+                        {' '}ılı.lıllılı.ıllı
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  st.listening && (
+                    <p>
+                      <span className="now-icon">{NOW_ICONS.listening}</span>
+                      <b>currently listening:</b> {st.listening}
+                    </p>
+                  )
+                )}
+
+                {['watching', 'reading'].map(
+                  (x) =>
                     st[x] && (
                       <p key={x}>
                         <span className="now-icon">{NOW_ICONS[x]}</span>
@@ -242,13 +343,15 @@ export default function App() {
                       </p>
                     )
                 )}
+
                 {st.thought && (
                   <p>
                     <span className="now-icon">{NOW_ICONS.thought}</span>
                     <b>thought of the day:</b> {st.thought}
                   </p>
                 )}
-                {!st.listening && !st.watching && !st.reading && !st.thought && (
+
+                {!st.listening && !st.watching && !st.reading && !st.thought && !liveTrack && (
                   <p className="empty-state">nothing right now.</p>
                 )}
               </div>
@@ -277,15 +380,15 @@ export default function App() {
           </section>
         )}
 
-        {/* ===== RANDOM MODAL ===== */}
+        {/* ===== RANDOM ME MODAL ===== */}
         {rnd && (
           <div className="modal" onClick={() => setRnd(null)}>
-            <div className="win modal-win" onClick={e => e.stopPropagation()}>
+            <div className="win modal-win" onClick={(e) => e.stopPropagation()}>
               <div className="bar">
-                <span>random me</span>
+                <span>random fact about me ☺</span>
                 <a
                   href="#"
-                  onClick={e => {
+                  onClick={(e) => {
                     e.preventDefault();
                     setRnd(null);
                   }}
@@ -297,9 +400,50 @@ export default function App() {
               <div className="body">
                 <h3>{rnd.title}</h3>
                 {rnd.image && (
-                  <img src={rnd.image} alt={rnd.title || 'Random entry image'} />
+                  <img src={rnd.image} alt={rnd.title || 'Fact attachment'} />
                 )}
                 <div className="md" dangerouslySetInnerHTML={md(rnd.body)} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== SYSTEM SPECS MODAL ===== */}
+        {showSpecs && (
+          <div className="modal" onClick={() => setShowSpecs(false)}>
+            <div className="win modal-win" onClick={(e) => e.stopPropagation()}>
+              <div className="bar">
+                <span>System Properties · Paradiso OS</span>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowSpecs(false);
+                  }}
+                  aria-label="Close modal"
+                >
+                  ✕
+                </a>
+              </div>
+              <div className="body system-specs-body">
+                <div className="specs-header">
+                  <span className="specs-logo">✦ PARADISO OS</span>
+                  <small>Version 2.2 · Release 2026</small>
+                </div>
+                <hr className="specs-divider" />
+                <div className="specs-grid">
+                  <div><b>Architect:</b> Sachin Bhattacharya</div>
+                  <div><b>Environment:</b> React 18 + Vite 5</div>
+                  <div><b>Database:</b> Cloud Firestore (Decentralized)</div>
+                  <div><b>Storage:</b> Cloudinary Media</div>
+                  <div><b>Audio Engine:</b> Web Audio API Synthesizer</div>
+                  <div><b>Active Wallpaper:</b> {wallpaper.toUpperCase()}</div>
+                  <div><b>CRT Scanlines:</b> {crtMode.toUpperCase()}</div>
+                  <div><b>Total Sections:</b> 15 Bespoke Themes</div>
+                </div>
+                <p className="specs-tip">
+                  💡 Tip: Right-click anywhere on the desktop to change wallpapers, toggle CRT modes, or mute sounds!
+                </p>
               </div>
             </div>
           </div>
@@ -310,13 +454,38 @@ export default function App() {
       <footer className="task">
         <a href="#" aria-label="Home">▶ {SITE}</a>
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+
+        {/* Sound Toggle Button */}
+        <button
+          className="taskbar-tool-btn"
+          onClick={toggleSound}
+          title={muted ? 'Sound Muted (Click to enable)' : 'Sound Enabled (Click to mute)'}
+          aria-label={muted ? 'Enable sound' : 'Mute sound'}
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
+
+        {/* CRT Mode Cycler */}
+        <button
+          className="taskbar-tool-btn crt-btn"
+          onClick={cycleCrt}
+          title={`CRT Effect: ${crtMode.toUpperCase()} (Click to toggle)`}
+        >
+          CRT: {crtMode.toUpperCase()}
+        </button>
+
         <span aria-label="Visitor count">
           {cnt != null && `visitors: ${String(cnt).padStart(6, '0')}`}
         </span>
+
         {MUSIC && (
           <>
             <audio ref={au} src={MUSIC} loop />
-            <button onClick={toggleMusic} aria-label={play ? 'Pause music' : 'Play music'}>
+            <button
+              onClick={toggleMusic}
+              aria-label={play ? 'Pause music' : 'Play music'}
+              title="Cassette Audio Player"
+            >
               {play ? '❚❚' : '♪'}
             </button>
           </>

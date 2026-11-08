@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { db } from '../../firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { md, formatDate } from '../../constants';
 import { useToast } from '../Toast';
+import { playBeep } from '../../utils/sound';
 
 /**
  * Typewriter Notebook Component for Poems (❀)
  * Left-aligned classic typewriter aesthetic with faint lined-paper styling,
- * margin date stamp, and relaxed stanza spacing.
+ * margin date stamp, and Font Switcher [Aa Typewriter | Aa Serif].
  */
 export default function PoemNote({ r, admin = false, onEdit, reload, index = 0 }) {
+  const [fontMode, setFontMode] = useState('typewriter'); // 'typewriter' or 'serif'
   const toast = useToast();
   const dateStr = formatDate(r.date);
 
@@ -31,6 +34,11 @@ export default function PoemNote({ r, admin = false, onEdit, reload, index = 0 }
     );
   };
 
+  const toggleFont = () => {
+    playBeep();
+    setFontMode((prev) => (prev === 'typewriter' ? 'serif' : 'typewriter'));
+  };
+
   return (
     <article
       className="poem-note card-enter"
@@ -43,9 +51,19 @@ export default function PoemNote({ r, admin = false, onEdit, reload, index = 0 }
           <span className="poem-date-stamp">{dateStr}</span>
         </aside>
 
-        {/* Lined body with typewriter verses */}
+        {/* Lined body with typewriter/serif verses */}
         <div className="poem-body-wrap">
-          <h3 className="poem-title">{r.title || 'untitled'}</h3>
+          <div className="poem-header-row">
+            <h3 className="poem-title">{r.title || 'untitled'}</h3>
+            <button
+              className="poem-font-toggle"
+              onClick={toggleFont}
+              title="Toggle font: Typewriter vs Classic Serif"
+            >
+              {fontMode === 'typewriter' ? 'Aa Serif' : 'Aa Typewriter'}
+            </button>
+          </div>
+
           {r.extra && <div className="poem-epigraph">― {r.extra}</div>}
 
           {r.image && (
@@ -54,7 +72,10 @@ export default function PoemNote({ r, admin = false, onEdit, reload, index = 0 }
             </div>
           )}
 
-          <div className="poem-verses md" dangerouslySetInnerHTML={md(r.body)} />
+          <div
+            className={`poem-verses md ${fontMode === 'serif' ? 'font-serif' : 'font-typewriter'}`}
+            dangerouslySetInnerHTML={md(r.body)}
+          />
 
           <div className="card-actions poem-actions">
             <button className="card-action-btn" onClick={handleShare} title="Copy link">

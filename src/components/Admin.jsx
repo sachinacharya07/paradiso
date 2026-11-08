@@ -1,26 +1,32 @@
 import { useState, useEffect } from 'react';
-import { db, auth, provider, ADMIN } from '../firebase';
+import { db, auth, provider } from '../firebase';
 import {
   doc,
   getDoc,
   setDoc,
+  collection,
+  getDocs,
 } from 'firebase/firestore';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { useToast } from './Toast';
 import Editor from './Editor';
 import PostList from './PostList';
 import { NOW_ICONS } from '../constants';
+import { playFloppySave, playBeep } from '../utils/sound';
 
 /**
- * Admin panel component.
- * Features: entry management, "Now" status editor, confirmation dialogs,
- * success feedback, sign in/out.
+ * Admin panel component with:
+ * - 1-Click JSON & Markdown Backup exporter
+ * - Live Spotify / Last.fm user integration for now.txt
+ * - Draft entry indicator
+ * - Status updater
  */
 export default function Admin({ admin }) {
   const [ed, setEd] = useState(null);
   const [st, setSt] = useState({});
   const [listKey, setListKey] = useState(0);
   const [savingNow, setSavingNow] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -55,12 +61,88 @@ export default function Admin({ admin }) {
   const saveNow = async () => {
     setSavingNow(true);
     try {
+      playFloppySave();
       await setDoc(doc(db, 'meta', 'status'), st);
       toast('Now status saved', 'success');
     } catch (err) {
       toast('Failed to save status: ' + err.message, 'error');
     } finally {
       setSavingNow(false);
+    }
+  };
+
+  /**
+   * 1-Click Backup Export to JSON
+   */
+  const handleExportJson = async () => {
+    setExporting(true);
+    playBeep();
+    try {
+      const snap = await getDocs(collection(db, 'entries'));
+      const entries = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+        date: d.data().date?.toDate ? d.data().date.toDate().toISOString() : d.data().date,
+      }));
+
+      const jsonStr = JSON.stringify(
+        {
+          site: 'paradiso',
+          exportedAt: new Date().toISOString(),
+          totalEntries: entries.length,
+          entries,
+        },
+        null,
+        2
+      );
+
+      playFloppySave();
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `paradiso-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast(`Exported ${entries.length} entries to JSON`, 'success');
+    } catch (err) {
+      toast('Export failed: ' + err.message, 'error');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  /**
+   * 1-Click Backup Export to Markdown
+   */
+  const handleExportMarkdown = async () => {
+    setExporting(true);
+    playBeep();
+    try {
+      const snap = await getDocs(collection(db, 'entries'));
+      const entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+      let mdContent = `# Paradiso Content Archive\n*Exported on ${new Date().toLocaleDateString()}*\n\n---\n\n`;
+      entries.forEach((e) => {
+        mdContent += `## [${e.type ? e.type.toUpperCase() : 'POST'}] ${e.title || 'Untitled'}\n`;
+        if (e.extra) mdContent += `*Extra: ${e.extra}*\n`;
+        if (e.image) mdContent += `![Image](${e.image})\n\n`;
+        mdContent += `${e.body || ''}\n\n---\n\n`;
+      });
+
+      playFloppySave();
+      const blob = new Blob([mdContent], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `paradiso-archive-${new Date().toISOString().slice(0, 10)}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast(`Exported archive to Markdown`, 'success');
+    } catch (err) {
+      toast('Export failed: ' + err.message, 'error');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -79,7 +161,7 @@ export default function Admin({ admin }) {
         init={ed === 'new' ? null : ed}
         done={() => {
           setEd(null);
-          setListKey(k => k + 1);
+          setListKey((k) => k + 1);
         }}
       />
     );
@@ -87,14 +169,24 @@ export default function Admin({ admin }) {
 
   return (
     <div className="admin-panel">
+      {/* Top action buttons */}
       <div className="admin-actions">
         <button onClick={() => setEd('new')}>+ new entry</button>
-        <button onClick={handleSignOut}>sign out</button>
+        <button onClick={handleExportJson} disabled={exporting}>
+          💾 export JSON backup
+        </button>
+        <button onClick={handleExportMarkdown} disabled={exporting}>
+          📄 export Markdown
+        </button>
+        <button onClick={handleSignOut} className="sign-out-btn">
+          sign out
+        </button>
       </div>
 
+      {/* "Now" status editor with live Last.fm sync support */}
       <h3>now</h3>
       <div className="now-editor">
-        {['listening', 'watching', 'reading', 'thought'].map(x => (
+        {['listening', 'watching', 'reading', 'thought'].map((x) => (
           <div key={x} className="now-field">
             <label>
               {NOW_ICONS[x]} {x}
@@ -102,10 +194,22 @@ export default function Admin({ admin }) {
             <input
               placeholder={x}
               value={st[x] || ''}
-              onChange={e => setSt({ ...st, [x]: e.target.value })}
+              onChange={(e) => setSt({ ...st, [x]: e.target.value })}
             />
           </div>
         ))}
+
+        {/* Optional Last.fm username for automatic Spotify sync */}
+        <div className="now-field">
+          <label title="Your Last.fm username to auto-sync Spotify now-playing">
+            🎵 last.fm user
+          </label>
+          <input
+            placeholder="e.g. your_lastfm_username (auto-syncs Spotify)"
+            value={st.lastFmUser || ''}
+            onChange={(e) => setSt({ ...st, lastFmUser: e.target.value.trim() })}
+          />
+        </div>
       </div>
       <button onClick={saveNow} disabled={savingNow}>
         {savingNow ? 'saving…' : 'save now'}

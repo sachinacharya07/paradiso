@@ -15,7 +15,7 @@ import Scrapbook from './Scrapbook';
 import Loader from './Loader';
 
 // Thematic section components
-import MovieTicket from './sections/MovieTicket';
+import MovieSection from './sections/MovieSection';
 import PoemNote from './sections/PoemNote';
 import BucketDiary from './sections/BucketDiary';
 import StickyThought from './sections/StickyThought';
@@ -31,32 +31,44 @@ import EditorialArticle from './sections/EditorialArticle';
  * Render an entry using its tailored thematic component
  */
 export function ThematicCard({ r, admin, onEdit, reload, index }) {
-  switch (r.type) {
-    case 'review':
-      return <MovieTicket r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'poem':
-      return <PoemNote r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'bucket':
-      return <BucketDiary r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'thought':
-      return <StickyThought r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'letter':
-      return <AirmailLetter r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'find':
-      return <RolodexFind r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'quote':
-      return <QuotePoster r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'project':
-      return <ProjectBlueprint r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    case 'fact':
-      return <IdBadgeFact r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
-    default:
-      return <EditorialArticle r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+  const card = (() => {
+    switch (r.type) {
+      case 'poem':
+        return <PoemNote r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'bucket':
+        return <BucketDiary r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'thought':
+        return <StickyThought r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'letter':
+        return <AirmailLetter r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'find':
+        return <RolodexFind r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'quote':
+        return <QuotePoster r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'project':
+        return <ProjectBlueprint r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'fact':
+        return <IdBadgeFact r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      default:
+        return <EditorialArticle r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+    }
+  })();
+
+  if (r.draft && admin) {
+    return (
+      <div className="draft-entry-wrapper">
+        <span className="draft-indicator-tag">🔒 DRAFT (PRIVATE)</span>
+        {card}
+      </div>
+    );
   }
+
+  return card;
 }
 
 /**
- * PostList component — routes to the appropriate bespoke layout per theme.
+ * PostList component — routes to the appropriate bespoke layout per theme,
+ * filters drafts for non-admins, and supports pagination.
  */
 export default function PostList({ t, admin = false, onEdit }) {
   const [rows, setRows] = useState(null);
@@ -128,16 +140,19 @@ export default function PostList({ t, admin = false, onEdit }) {
 
   if (!rows) return <Loader count={3} />;
 
+  // Filter drafts: public visitors only see published items (draft !== true)
+  const visibleRows = admin ? rows : rows.filter(r => !r.draft);
+
   // 1. Scrapbook: Draggable Collage View
   if (t === 'scrap') {
-    return <Scrapbook items={rows.filter(r => r.image)} />;
+    return <Scrapbook items={visibleRows.filter(r => r.image)} />;
   }
 
   // 2. Timeline: Horizontal Metro Subway Track View
   if (t === 'timeline') {
     return (
       <MetroTimeline
-        items={rows}
+        items={visibleRows}
         admin={admin}
         onEdit={onEdit}
         reload={handleReload}
@@ -145,33 +160,43 @@ export default function PostList({ t, admin = false, onEdit }) {
     );
   }
 
-  if (!rows.length) {
+  // 3. Movies: Filterable & Sortable Cinema Ticket Section
+  if (t === 'review') {
+    return (
+      <MovieSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  if (!visibleRows.length) {
     return <p className="empty-state">nothing here yet.</p>;
   }
 
   // Choose container class depending on category theme
   const containerClass =
-    t === 'review'
-      ? 'movie-tickets-container'
-      : t === 'thought'
-        ? 'sticky-thoughts-masonry'
-        : t === 'poem'
-          ? 'poems-notebook'
-          : t === 'bucket'
-            ? 'bucket-diary-list'
-            : t === 'find'
-              ? 'rolodex-list'
-              : t === 'quote'
-                ? 'quotes-masonry'
-                : t === 'project'
-                  ? 'projects-workbench-grid'
-                  : t === 'fact'
-                    ? 'id-badges-grid'
-                    : 'editorial-feed';
+    t === 'thought'
+      ? 'sticky-thoughts-masonry'
+      : t === 'poem'
+        ? 'poems-notebook'
+        : t === 'bucket'
+          ? 'bucket-diary-list'
+          : t === 'find'
+            ? 'rolodex-list'
+            : t === 'quote'
+              ? 'quotes-masonry'
+              : t === 'project'
+                ? 'projects-workbench-grid'
+                : t === 'fact'
+                  ? 'id-badges-grid'
+                  : 'editorial-feed';
 
   return (
     <div className={`thematic-section-wrap ${containerClass}`}>
-      {rows.map((r, i) => (
+      {visibleRows.map((r, i) => (
         <ThematicCard
           key={r.id}
           r={r}

@@ -1250,12 +1250,34 @@ select:focus-visible {
   opacity: 0.6;
 }
 
+.ticket-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ticket-stars-inline {
+  color: #e5a93c;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(229, 169, 60, 0.4);
+}
+
 .stub-rating-val {
   display: block;
   font-family: VT323, monospace;
   font-size: 24px;
   color: var(--neon-rose);
   font-weight: bold;
+}
+
+.stub-stars-val {
+  display: block;
+  color: #e5a93c;
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-top: 2px;
+  text-shadow: 0 0 6px rgba(229, 169, 60, 0.3);
 }
 
 .stub-barcode {
@@ -2334,4 +2356,860 @@ select:focus-visible {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+}
+
+
+/* ==========================================================================
+   DESKTOP OS UPGRADES & POWER FEATURES
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Desktop Wallpaper Themes
+   -------------------------------------------------------------------------- */
+[data-wallpaper="teal"] body {
+  background: #008080 !important;
+}
+
+[data-wallpaper="cyberpunk"] body {
+  background: #100b21 !important;
+  background-image: 
+    linear-gradient(rgba(107, 197, 212, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 197, 212, 0.08) 1px, transparent 1px) !important;
+  background-size: 28px 28px !important;
+}
+
+[data-wallpaper="parchment"] body {
+  background: #efe7dc !important;
+  background-image: radial-gradient(#2f2b3811 1px, transparent 1px) !important;
+  background-size: 16px 16px !important;
+}
+
+[data-wallpaper="sunset"] body {
+  background: linear-gradient(160deg, #8f8aa6, #a9bfc4) !important;
+}
+
+/* --------------------------------------------------------------------------
+   CRT Modes (Off, Subtle, Retro)
+   -------------------------------------------------------------------------- */
+[data-crt="off"] .crt,
+[data-crt="off"] .grain {
+  display: none !important;
+}
+
+[data-crt="subtle"] .crt {
+  opacity: 0.35 !important;
+}
+
+[data-crt="subtle"] .grain {
+  opacity: 0.025 !important;
+}
+
+[data-crt="retro"] .crt {
+  opacity: 1 !important;
+}
+
+[data-crt="retro"] .grain {
+  opacity: 0.07 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Windows 95-Style Desktop Context Menu
+   -------------------------------------------------------------------------- */
+.desktop-context-menu {
+  position: fixed;
+  z-index: 99;
+  min-width: 190px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  border-radius: 2px;
+  animation: fadeIn 0.12s ease-out;
+  padding: 0;
+  user-select: none;
+}
+
+.context-bar {
+  font-size: 14px;
+  padding: 2px 8px;
+  background: linear-gradient(90deg, var(--rose), var(--sky));
+  border-bottom: 1px solid var(--ink);
+  min-height: auto;
+}
+
+.context-items {
+  padding: 4px 0;
+}
+
+.context-item {
+  padding: 6px 14px;
+  font-family: VT323, monospace;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  transition: background 0.1s, color 0.1s;
+}
+
+.context-item:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.context-item.active {
+  color: var(--neon-rose);
+  font-weight: bold;
+}
+
+.context-arrow {
+  font-size: 12px;
+  margin-left: 12px;
+}
+
+.context-divider {
+  height: 1px;
+  border-top: 1px dashed var(--card-border);
+  margin: 4px 0;
+}
+
+.context-submenu {
+  position: absolute;
+  left: 100%;
+  top: -4px;
+  min-width: 170px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  animation: fadeIn 0.12s ease-out;
+}
+
+/* --------------------------------------------------------------------------
+   Movie Filter & Sort Toolbar
+   -------------------------------------------------------------------------- */
+.movie-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px var(--shadow);
+  padding: 8px 12px;
+  margin-bottom: 18px;
+  border-radius: 3px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-family: VT323, monospace;
+  font-size: 16px;
+  color: var(--ink);
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.filter-btn {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  font-family: VT323, monospace;
+  font-size: 16px;
+  padding: 2px 10px;
+  min-height: 32px;
+  min-width: auto;
+  cursor: pointer;
+  box-shadow: 1px 1px var(--shadow);
+  transition: background 0.15s, color 0.15s;
+}
+
+.filter-btn.active {
+  background: var(--neon-rose);
+  color: #fff;
+  border-color: var(--ink);
+  font-weight: bold;
+}
+
+.movie-sort-select {
+  font-family: VT323, monospace;
+  font-size: 16px;
+  padding: 4px 8px;
+  width: auto;
+  min-height: 32px;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Poem Font Switcher
+   -------------------------------------------------------------------------- */
+.poem-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.poem-font-toggle {
+  background: var(--input-bg);
+  border: 1px dashed var(--ink);
+  font-family: VT323, monospace;
+  font-size: 15px;
+  padding: 2px 8px;
+  min-height: auto;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.poem-font-toggle:hover {
+  background: var(--sage);
+}
+
+.font-serif {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-style: italic;
+  font-size: 17px !important;
+  line-height: 1.9 !important;
+}
+
+.font-typewriter {
+  font-family: 'Space Mono', monospace !important;
+  font-size: 15px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Metro Timeline Year Jump Bar
+   -------------------------------------------------------------------------- */
+.metro-header-banner {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metro-year-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pills-label {
+  font-family: VT323, monospace;
+  font-size: 15px;
+  opacity: 0.7;
+}
+
+.metro-year-pill-btn {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 1px 1px var(--shadow);
+  font-family: VT323, monospace;
+  font-size: 15px;
+  padding: 2px 8px;
+  min-height: 28px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.metro-year-pill-btn:hover {
+  background: var(--neon-sky);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Guestbook Pixel Stamp Picker & Admin Replies
+   -------------------------------------------------------------------------- */
+.stamp-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.stamp-picker-label {
+  font-family: VT323, monospace;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.stamp-options {
+  display: flex;
+  gap: 6px;
+}
+
+.stamp-opt-btn {
+  font-size: 20px;
+  padding: 2px 8px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.stamp-opt-btn:hover {
+  transform: scale(1.1);
+}
+
+.stamp-opt-btn.selected {
+  background: var(--sage);
+  border-color: var(--ink);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--neon-rose);
+}
+
+.guestbook-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.guestbook-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.guestbook-stamp-icon {
+  font-size: 22px;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.guestbook-meta-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  border: 1px solid var(--card-border);
+  opacity: 0.6;
+}
+
+/* Admin Reply Styling */
+.admin-reply-box {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--input-bg);
+  border-left: 3px solid var(--sage);
+  border-radius: 2px;
+}
+
+.admin-reply-stamp {
+  font-family: VT323, monospace;
+  font-size: 15px;
+  color: var(--sage);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.admin-reply-body {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.admin-reply-form {
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px dashed var(--ink);
+  background: var(--input-bg);
+}
+
+.admin-reply-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Draft Indicator (Admin Only)
+   -------------------------------------------------------------------------- */
+.draft-entry-wrapper {
+  position: relative;
+  border: 2px dashed #e5a93c;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 3px;
+  background: rgba(229, 169, 60, 0.05);
+}
+
+.draft-indicator-tag {
+  display: inline-block;
+  background: #e5a93c;
+  color: #000;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+
+.editor-top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.editor-type-select {
+  flex: 1;
+  min-width: 140px;
+  margin: 0;
+}
+
+.editor-draft-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: VT323, monospace;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-draft-toggle input {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Rich Media Embeds in Markdown (YouTube & Spotify)
+   -------------------------------------------------------------------------- */
+.retro-media-embed {
+  margin: 18px 0;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px var(--shadow);
+  background: #000;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 ratio */
+  height: 0;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.spotify-embed iframe {
+  display: block;
+  width: 100%;
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+   Live Spotify Equalizer (now.txt window)
+   -------------------------------------------------------------------------- */
+.now-live-tag {
+  font-size: 14px;
+  color: var(--neon-rose);
+  animation: pulseTag 2s infinite;
+}
+
+@keyframes pulseTag {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.now-live-track {
+  background: rgba(107, 197, 212, 0.08);
+  padding: 6px 8px;
+  border-radius: 2px;
+  border-left: 3px solid var(--neon-sky);
+}
+
+.live-eq {
+  color: var(--neon-rose);
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   System Specs Modal (Windows 95 style)
+   -------------------------------------------------------------------------- */
+.system-specs-body {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.specs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.specs-logo {
+  font-family: VT323, monospace;
+  font-size: 26px;
+  color: var(--neon-rose);
+}
+
+.specs-divider {
+  border: none;
+  border-top: 2px solid var(--ink);
+  margin: 8px 0 14px;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.specs-tip {
+  font-size: 12px;
+  opacity: 0.7;
+  font-style: italic;
+  border-top: 1px dashed var(--card-border);
+  padding-top: 8px;
+}
+
+/* Taskbar tools (Sound, CRT buttons) */
+.taskbar-tool-btn {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  box-shadow: none;
+  padding: 0 8px;
+  font-family: VT323, monospace;
+  font-size: 16px;
+  min-height: 32px;
+  min-width: 32px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.taskbar-tool-btn:hover {
+  background: var(--card-border);
+}
+
+.crt-btn {
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+
+/* ==========================================================================
+   THEMATIC WRITER STUDIO (Customized Editor per Category)
+   ========================================================================== */
+.thematic-writer-studio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.writer-banner {
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-radius: 2px;
+}
+
+.writer-banner-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.writer-banner-title {
+  font-family: VT323, monospace;
+  font-size: 20px;
+  color: var(--neon-rose);
+  letter-spacing: 1px;
+}
+
+.writer-banner-desc {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Category Switcher Tabs */
+.writer-category-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.writer-tab-btn {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 1px 1px var(--shadow);
+  font-family: VT323, monospace;
+  font-size: 16px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  min-height: 32px;
+  min-width: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.writer-tab-btn:hover {
+  background: var(--sage);
+  transform: translateY(-1px);
+}
+
+.writer-tab-btn.active {
+  background: var(--neon-rose);
+  color: #fff;
+  border-color: var(--ink);
+  font-weight: bold;
+}
+
+/* Workspace Split */
+.writer-split-workspace {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.writer-form-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.writer-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.writer-field-label {
+  font-family: VT323, monospace;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.writer-input {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 6px 10px;
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.writer-field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* Themed Fields */
+.writer-themed-fields {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px dashed var(--card-border);
+  padding: 10px;
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .writer-themed-fields {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bucket-status-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: VT323, monospace;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bucket-status-checkbox input {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.align-center {
+  align-items: center;
+}
+
+/* Image Upload Row */
+.image-upload-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cloudinary-btn {
+  background: var(--sage);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  font-family: VT323, monospace;
+  font-size: 16px;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cloudinary-btn input[type="file"] {
+  display: none;
+}
+
+.uploading-msg {
+  color: var(--neon-sky);
+  margin-top: 2px;
+}
+
+/* Textarea & Word Count */
+.body-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.writer-stats {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.writer-textarea {
+  min-height: 220px;
+  font-family: 'Space Mono', 'Noto Sans Devanagari', 'Noto Sans Bengali', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+}
+
+.poem-textarea {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(47, 43, 56, 0.08) 28px
+  );
+  line-height: 28px;
+  font-size: 15px;
+}
+
+/* Actions Bar */
+.writer-actions-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.writer-save-btn {
+  background: var(--neon-rose);
+  color: #fff;
+  font-family: VT323, monospace;
+  font-size: 20px;
+  padding: 6px 18px;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px var(--shadow);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.writer-save-btn:hover {
+  background: var(--rose);
+}
+
+.writer-cancel-btn {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px var(--shadow);
+  font-family: VT323, monospace;
+  font-size: 18px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+/* Preview Canvas (Right Side) */
+.writer-preview-pane {
+  background: var(--input-bg);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px var(--shadow);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 10px;
+}
+
+.writer-preview-header {
+  background: linear-gradient(90deg, var(--rose), var(--sky));
+  border-bottom: 2px solid var(--ink);
+  padding: 4px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: VT323, monospace;
+}
+
+.preview-tag {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.writer-preview-canvas {
+  padding: 14px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .writer-split-workspace {
+    grid-template-columns: 1fr;
+  }
+  .writer-preview-pane {
+    position: static;
+  }
 }

@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 /**
  * Section definitions: [key, label, icon]
  */
@@ -23,7 +25,7 @@ export const SEC = [
  * Extra field placeholder text per section type.
  */
 export const EXTRA = {
-  review: 'Rating & year (e.g. 4/5 · 2019)',
+  review: 'Your Rating & Year (e.g. 4.5/5 · 2024 or 9/10)',
   bucket: 'Date done (blank = not yet)',
   timeline: 'Date',
   find: 'Link URL',
@@ -63,19 +65,12 @@ export const NOW_ICONS = {
  */
 export const WPM = 200;
 
-/**
- * Estimate reading time in minutes.
- */
 export function readingTime(text) {
   if (!text) return 0;
   const words = text.trim().split(/\s+/).length;
   return Math.max(1, Math.ceil(words / WPM));
 }
 
-/**
- * Play a short beep using the Web Audio API.
- * Cleans up oscillator nodes after they stop.
- */
 let ctx;
 export function beep() {
   try {
@@ -98,30 +93,44 @@ export function beep() {
 }
 
 /**
- * Configure marked to escape raw HTML (XSS prevention).
+ * Configure marked with:
+ * - HTML escaping (XSS prevention)
+ * - Rich media auto-embeds for YouTube videos and Spotify tracks/albums
  */
-import { marked } from 'marked';
-
 marked.use({
   renderer: {
     html(token) {
-      return token.raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const raw = typeof token === 'object' && token.raw ? token.raw : String(token);
+      return raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
+    link(arg1, titleArg, textArg) {
+      const href = typeof arg1 === 'object' ? arg1.href : arg1;
+      const title = typeof arg1 === 'object' ? arg1.title : titleArg;
+      const text = typeof arg1 === 'object' ? arg1.text : textArg;
+
+      if (!href) return text || '';
+
+      // Auto-embed YouTube
+      const ytMatch = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (ytMatch && (text === href || !text)) {
+        return `<div class="retro-media-embed youtube-embed"><iframe src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen loading="lazy" title="YouTube video"></iframe></div>`;
+      }
+
+      // Auto-embed Spotify
+      const spMatch = href.match(/open\.spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/);
+      if (spMatch && (text === href || !text)) {
+        return `<div class="retro-media-embed spotify-embed"><iframe src="https://open.spotify.com/embed/${spMatch[1]}/${spMatch[2]}" width="100%" height="152" frameborder="0" allow="encrypted-media" loading="lazy" title="Spotify audio"></iframe></div>`;
+      }
+
+      return `<a href="${href}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
     },
   },
 });
 
-/**
- * Render markdown string to a React dangerouslySetInnerHTML object.
- * HTML in markdown is escaped to prevent XSS.
- */
 export function md(t) {
   return { __html: marked.parse(t || '') };
 }
 
-/**
- * Format a Firestore timestamp-like value safely.
- * Wraps in try/catch to prevent crashes on non-Timestamp values (BUG FIX #2).
- */
 export function formatDate(date) {
   if (!date) return '';
   try {
@@ -140,7 +149,4 @@ export function formatDate(date) {
   return '';
 }
 
-/**
- * Page size for paginated queries.
- */
 export const PAGE_SIZE = 20;
