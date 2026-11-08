@@ -21,6 +21,7 @@ import PostList from './components/PostList';
 import Admin from './components/Admin';
 import Guestbook from './components/Guestbook';
 import Search from './components/Search';
+import SectionIcon from './components/SectionIcon';
 
 export default function App() {
   const [sec, setSec] = useState(location.hash.slice(1));
@@ -276,7 +277,9 @@ export default function App() {
             <nav className="icons" aria-label="Sections">
               {SEC.map(([k, n, icon]) => (
                 <a className="ico" key={k} href={'#' + k} aria-label={n}>
-                  <span>{icon}</span>
+                  <span>
+                    <SectionIcon type={k} fallback={icon} size={28} />
+                  </span>
                   <span className="ico-label">
                     {n}
                     {entryCounts[k] > 0 && (

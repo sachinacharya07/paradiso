@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { SEC, NAME, formatDate } from '../../constants';
 import { ThematicCard } from '../PostList';
+import SectionIcon from '../SectionIcon';
 import { playPaperTear, playBeep } from '../../utils/sound';
 
 export default function ArchiveSection({ items, admin = false, onEdit, reload }) {
@@ -151,7 +152,8 @@ export default function ArchiveSection({ items, admin = false, onEdit, reload })
                 setActiveCategory(k);
               }}
             >
-              <span>{icon} {name}</span>
+              <SectionIcon type={k} fallback={icon} size={14} />
+              <span>{name}</span>
               <span className="archive-cat-count">{count}</span>
             </button>
           );

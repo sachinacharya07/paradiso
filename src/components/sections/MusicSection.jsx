@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import MusicRecord, { parseMusicMeta } from './MusicRecord';
+import SectionIcon from '../SectionIcon';
 import { playCassetteClick, playBeep } from '../../utils/sound';
 
 export default function MusicSection({ items, admin = false, onEdit, reload }) {
@@ -64,7 +65,7 @@ export default function MusicSection({ items, admin = false, onEdit, reload }) {
       {/* Vinyl Crate Banner */}
       <div className="section-header-banner music-banner">
         <div className="section-banner-title-box">
-          <span className="section-banner-icon">🎧</span>
+          <SectionIcon type="music" size={32} className="section-banner-icon" />
           <div>
             <h2 className="section-banner-heading">VINYL & MIXTAPE CRATE</h2>
             <p className="section-banner-sub">Spinning records, cassette liner notes, and ambient soundscapes.</p>

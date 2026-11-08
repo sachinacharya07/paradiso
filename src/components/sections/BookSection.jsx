@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import BookCard, { parseBookMeta } from './BookCard';
+import SectionIcon from '../SectionIcon';
 import { playPaperTear, playBeep } from '../../utils/sound';
 
 export default function BookSection({ items, admin = false, onEdit, reload }) {
@@ -75,7 +76,7 @@ export default function BookSection({ items, admin = false, onEdit, reload }) {
       {/* Library Banner & Summary Header */}
       <div className="section-header-banner book-banner">
         <div className="section-banner-title-box">
-          <span className="section-banner-icon">📚</span>
+          <SectionIcon type="book" size={32} className="section-banner-icon" />
           <div>
             <h2 className="section-banner-heading">LIBRARY & READING LOG</h2>
             <p className="section-banner-sub">Personal library card catalog, quotes, and reading reflections.</p>

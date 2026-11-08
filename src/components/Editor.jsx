@@ -11,6 +11,7 @@ import { SEC, readingTime } from '../constants';
 import { useToast } from './Toast';
 import { playFloppySave, playTypewriterClick, playBeep, playPaperTear, playCassetteClick } from '../utils/sound';
 import { ThematicCard } from './PostList';
+import SectionIcon from './SectionIcon';
 
 const DRAFT_KEY = 'paradiso-editor-draft';
 
@@ -478,7 +479,8 @@ export default function Editor({ init, done }) {
               setF((prev) => ({ ...prev, type: k }));
             }}
           >
-            <span>{icon}</span> {n}
+            <SectionIcon type={k} fallback={icon} size={15} />
+            <span>{n}</span>
           </button>
         ))}
       </div>

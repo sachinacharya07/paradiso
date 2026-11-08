@@ -11,6 +11,7 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { useToast } from './Toast';
 import Editor from './Editor';
 import PostList from './PostList';
+import SectionIcon from './SectionIcon';
 import { NOW_ICONS, SEC } from '../constants';
 import { playFloppySave, playBeep, playPaperTear } from '../utils/sound';
 
@@ -246,7 +247,8 @@ export default function Admin({ admin }) {
                 setAdminSec(k);
               }}
             >
-              <span>{icon}</span> {name}
+              <SectionIcon type={k} fallback={icon} size={14} />
+              <span>{name}</span>
             </button>
           ))}
         </div>

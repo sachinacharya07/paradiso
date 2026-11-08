@@ -146,6 +146,17 @@ h1 {
   box-shadow: 4px 4px var(--neon-rose);
 }
 
+.ico > span:first-child svg {
+  display: block;
+  stroke: var(--ink);
+  transition: transform 0.15s ease, stroke 0.15s ease;
+}
+
+.ico:hover > span:first-child svg {
+  stroke: var(--neon-rose);
+  transform: scale(1.08);
+}
+
 .ico-label {
   position: relative;
 }

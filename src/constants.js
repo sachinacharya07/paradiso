@@ -6,9 +6,9 @@ import { marked } from 'marked';
 export const SEC = [
   ['post', 'Updates', '✎'],
   ['review', 'Movies', '▶'],
-  ['book', 'Books', '📚'],
-  ['music', 'Mixtapes', '🎧'],
-  ['game', 'Arcade', '🎮'],
+  ['book', 'Books', '▤'],
+  ['music', 'Mixtapes', '♫'],
+  ['game', 'Arcade', '❖'],
   ['poem', 'Poems', '❀'],
   ['essay', 'Essays', '¶'],
   ['creative', 'Creative', '✦'],

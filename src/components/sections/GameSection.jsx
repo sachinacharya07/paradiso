@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import GameCartridge, { parseGameMeta } from './GameCartridge';
+import SectionIcon from '../SectionIcon';
 import { playBeep } from '../../utils/sound';
 
 export default function GameSection({ items, admin = false, onEdit, reload }) {
@@ -67,7 +68,7 @@ export default function GameSection({ items, admin = false, onEdit, reload }) {
       {/* Arcade Banner */}
       <div className="section-header-banner game-banner">
         <div className="section-banner-title-box">
-          <span className="section-banner-icon">🎮</span>
+          <SectionIcon type="game" size={32} className="section-banner-icon" />
           <div>
             <h2 className="section-banner-heading">ARCADE & CARTRIDGE RACK</h2>
             <p className="section-banner-sub">Retro playthroughs, cartridges beaten, and 16-bit memories.</p>
