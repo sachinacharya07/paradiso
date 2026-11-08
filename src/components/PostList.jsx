@@ -14,8 +14,11 @@ import { useToast } from './Toast';
 import Scrapbook from './Scrapbook';
 import Loader from './Loader';
 
-// Thematic section components
-import MovieSection from './sections/MovieSection';
+// Thematic section card components
+import MovieTicket from './sections/MovieTicket';
+import BookCard from './sections/BookCard';
+import MusicRecord from './sections/MusicRecord';
+import GameCartridge from './sections/GameCartridge';
 import PoemNote from './sections/PoemNote';
 import BucketDiary from './sections/BucketDiary';
 import StickyThought from './sections/StickyThought';
@@ -27,12 +30,31 @@ import ProjectBlueprint from './sections/ProjectBlueprint';
 import IdBadgeFact from './sections/IdBadgeFact';
 import EditorialArticle from './sections/EditorialArticle';
 
+// Dedicated separated section views
+import MovieSection from './sections/MovieSection';
+import BookSection from './sections/BookSection';
+import MusicSection from './sections/MusicSection';
+import GameSection from './sections/GameSection';
+import BucketSection from './sections/BucketSection';
+import PoemSection from './sections/PoemSection';
+import ThoughtSection from './sections/ThoughtSection';
+import ArchiveSection from './sections/ArchiveSection';
+import LetterSection from './sections/LetterSection';
+
 /**
  * Render an entry using its tailored thematic component
  */
 export function ThematicCard({ r, admin, onEdit, reload, index }) {
   const card = (() => {
     switch (r.type) {
+      case 'review':
+        return <MovieTicket r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'book':
+        return <BookCard r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'music':
+        return <MusicRecord r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
+      case 'game':
+        return <GameCartridge r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
       case 'poem':
         return <PoemNote r={r} admin={admin} onEdit={onEdit} reload={reload} index={index} />;
       case 'bucket':
@@ -77,6 +99,8 @@ export default function PostList({ t, admin = false, onEdit }) {
   const lastDocRef = useRef(null);
   const toast = useToast();
 
+  const queryLimit = t === 'archive' ? 200 : PAGE_SIZE;
+
   const buildQuery = useCallback((afterDoc) => {
     const col = collection(db, 'entries');
     const constraints = [];
@@ -87,12 +111,12 @@ export default function PostList({ t, admin = false, onEdit }) {
       constraints.push(where('type', '==', t));
       constraints.push(orderBy('date', 'desc'));
     }
-    constraints.push(limit(PAGE_SIZE));
+    constraints.push(limit(queryLimit));
     if (afterDoc) {
       constraints.push(startAfter(afterDoc));
     }
     return query(col, ...constraints);
-  }, [t]);
+  }, [t, queryLimit]);
 
   const load = useCallback(async (loadMore = false) => {
     try {
@@ -104,7 +128,7 @@ export default function PostList({ t, admin = false, onEdit }) {
       if (snap.docs.length > 0) {
         lastDocRef.current = snap.docs[snap.docs.length - 1];
       }
-      setHasMore(snap.docs.length >= PAGE_SIZE);
+      setHasMore(snap.docs.length >= queryLimit);
 
       if (loadMore) {
         setRows(prev => [...(prev || []), ...entries]);
@@ -116,7 +140,7 @@ export default function PostList({ t, admin = false, onEdit }) {
       toast('Failed to load: ' + err.message, 'error');
       if (!loadMore) setRows([]);
     }
-  }, [buildQuery, toast]);
+  }, [buildQuery, toast, queryLimit]);
 
   useEffect(() => {
     setRows(null);
@@ -172,27 +196,117 @@ export default function PostList({ t, admin = false, onEdit }) {
     );
   }
 
+  // 4. Books: Library Checkout Card Catalog Section
+  if (t === 'book') {
+    return (
+      <BookSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 5. Music: Vinyl Records & Mixtapes Crate Section
+  if (t === 'music') {
+    return (
+      <MusicSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 6. Games: Retro Arcade & Cartridge Shelf Section
+  if (t === 'game') {
+    return (
+      <GameSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 7. Bucket: Life Ledger & Bucket List Section
+  if (t === 'bucket') {
+    return (
+      <BucketSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 8. Poems: Typewriter Anthology Desk Section
+  if (t === 'poem') {
+    return (
+      <PoemSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 9. Thoughts: Corkboard & Sticky Notes Section
+  if (t === 'thought') {
+    return (
+      <ThoughtSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 10. Letters: Postal Bureau & Airmail Dispatches (Search by Name)
+  if (t === 'letter') {
+    return (
+      <LetterSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
+  // 11. Archive: Dedicated Master Archive Explorer
+  if (t === 'archive') {
+    return (
+      <ArchiveSection
+        items={visibleRows}
+        admin={admin}
+        onEdit={onEdit}
+        reload={handleReload}
+      />
+    );
+  }
+
   if (!visibleRows.length) {
     return <p className="empty-state">nothing here yet.</p>;
   }
 
-  // Choose container class depending on category theme
+  // Fallback for remaining sections (find, quote, project, fact, post, essay, creative, interest)
   const containerClass =
-    t === 'thought'
-      ? 'sticky-thoughts-masonry'
-      : t === 'poem'
-        ? 'poems-notebook'
-        : t === 'bucket'
-          ? 'bucket-diary-list'
-          : t === 'find'
-            ? 'rolodex-list'
-            : t === 'quote'
-              ? 'quotes-masonry'
-              : t === 'project'
-                ? 'projects-workbench-grid'
-                : t === 'fact'
-                  ? 'id-badges-grid'
-                  : 'editorial-feed';
+    t === 'find'
+      ? 'rolodex-list'
+      : t === 'quote'
+        ? 'quotes-masonry'
+        : t === 'project'
+          ? 'projects-workbench-grid'
+          : t === 'fact'
+            ? 'id-badges-grid'
+            : 'editorial-feed';
 
   return (
     <div className={`thematic-section-wrap ${containerClass}`}>

@@ -6,6 +6,9 @@ import { marked } from 'marked';
 export const SEC = [
   ['post', 'Updates', '✎'],
   ['review', 'Movies', '▶'],
+  ['book', 'Books', '📚'],
+  ['music', 'Mixtapes', '🎧'],
+  ['game', 'Arcade', '🎮'],
   ['poem', 'Poems', '❀'],
   ['essay', 'Essays', '¶'],
   ['creative', 'Creative', '✦'],
@@ -26,6 +29,9 @@ export const SEC = [
  */
 export const EXTRA = {
   review: 'Your Rating & Year (e.g. 4.5/5 · 2024 or 9/10)',
+  book: 'Author · Rating · Status (e.g. Haruki Murakami · 5/5 · Finished)',
+  music: 'Artist · Genre · Year (e.g. Tatsuro Yamashita · City Pop · 1982)',
+  game: 'Platform · Score · Status (e.g. SNES · 9.5/10 · Beaten)',
   bucket: 'Date done (blank = not yet)',
   timeline: 'Date',
   find: 'Link URL',
@@ -35,7 +41,7 @@ export const EXTRA = {
  * Section types that should show their body content expanded by default.
  */
 export const SHORT = [
-  'poem', 'thought', 'quote', 'fact', 'bucket', 'timeline', 'letter',
+  'poem', 'thought', 'quote', 'fact', 'bucket', 'timeline', 'letter', 'book', 'music', 'game',
 ];
 
 /**

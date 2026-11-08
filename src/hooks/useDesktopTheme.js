@@ -9,6 +9,10 @@ export const WALLPAPERS = [
   { id: 'teal', name: 'Windows 95 Teal', color: '#008080' },
   { id: 'cyberpunk', name: 'Midnight Cyberpunk', color: 'linear-gradient(180deg, #120e24 0%, #1c1438 100%)' },
   { id: 'parchment', name: 'Cream Parchment', color: '#efe7dc' },
+  { id: 'sakura', name: 'Tokyo Sakura', color: 'linear-gradient(135deg, #fce4ec 0%, #e1bee7 100%)' },
+  { id: 'matrix', name: 'Game Boy / Matrix', color: '#0f380f' },
+  { id: 'synthwave', name: '80s Synthwave Grid', color: '#190e2e' },
+  { id: 'macos', name: 'Classic Mac OS', color: '#d4d0c8' },
 ];
 
 export const CRT_MODES = ['retro', 'subtle', 'off'];

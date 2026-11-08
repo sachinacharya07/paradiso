@@ -220,3 +220,40 @@ export function playCassetteClick() {
     // ignore
   }
 }
+
+/**
+ * 6. Metro Transit / Subway Chime (when navigating timeline stations)
+ * Two-tone retro station departure chime (e.g. 587.3Hz D5 -> 880Hz A5)
+ */
+export function playSubwayChime() {
+  if (isMuted()) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const notes = [
+      { freq: 587.33, start: 0, duration: 0.22 }, // D5
+      { freq: 880.0, start: 0.16, duration: 0.35 },  // A5
+    ];
+
+    notes.forEach(({ freq, start, duration }) => {
+      const startTime = ctx.currentTime + start;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.09, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    });
+  } catch {
+    // ignore
+  }
+}

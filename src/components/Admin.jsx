@@ -11,8 +11,8 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { useToast } from './Toast';
 import Editor from './Editor';
 import PostList from './PostList';
-import { NOW_ICONS } from '../constants';
-import { playFloppySave, playBeep } from '../utils/sound';
+import { NOW_ICONS, SEC } from '../constants';
+import { playFloppySave, playBeep, playPaperTear } from '../utils/sound';
 
 /**
  * Admin panel component with:
@@ -25,6 +25,7 @@ export default function Admin({ admin }) {
   const [ed, setEd] = useState(null);
   const [st, setSt] = useState({});
   const [listKey, setListKey] = useState(0);
+  const [adminSec, setAdminSec] = useState('archive');
   const [savingNow, setSavingNow] = useState(false);
   const [exporting, setExporting] = useState(false);
   const toast = useToast();
@@ -215,8 +216,43 @@ export default function Admin({ admin }) {
         {savingNow ? 'saving…' : 'save now'}
       </button>
 
-      <h3>all entries</h3>
-      <PostList key={listKey} t="archive" admin onEdit={setEd} />
+      <div className="admin-entries-header">
+        <div className="admin-entries-title-row">
+          <h3>entries manager</h3>
+          <span className="admin-active-sec-pill">
+            SHOWING: {adminSec === 'archive' ? 'ALL SECTIONS' : (SEC.find(s => s[0] === adminSec)?.[1] || adminSec).toUpperCase()}
+          </span>
+        </div>
+
+        {/* Separated section category tabs */}
+        <div className="admin-category-tabs">
+          <button
+            type="button"
+            className={`admin-cat-tab ${adminSec === 'archive' ? 'active' : ''}`}
+            onClick={() => {
+              playPaperTear();
+              setAdminSec('archive');
+            }}
+          >
+            ☰ ALL ARCHIVES
+          </button>
+          {SEC.map(([k, name, icon]) => (
+            <button
+              key={k}
+              type="button"
+              className={`admin-cat-tab ${adminSec === k ? 'active' : ''}`}
+              onClick={() => {
+                playPaperTear();
+                setAdminSec(k);
+              }}
+            >
+              <span>{icon}</span> {name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <PostList key={`${adminSec}-${listKey}`} t={adminSec} admin onEdit={setEd} />
     </div>
   );
 }

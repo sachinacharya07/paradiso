@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { SEC, readingTime } from '../constants';
 import { useToast } from './Toast';
-import { playFloppySave, playTypewriterClick, playBeep } from '../utils/sound';
+import { playFloppySave, playTypewriterClick, playBeep, playPaperTear, playCassetteClick } from '../utils/sound';
 import { ThematicCard } from './PostList';
 
 const DRAFT_KEY = 'paradiso-editor-draft';
@@ -46,14 +46,35 @@ function clearDraft() {
 const SECTION_THEMES = {
   review: {
     banner: '🎬 CINEMA STUDIO · PRODUCTION DESK',
-    desc: 'Craft a movie review, ticket stub score, and cinematic thoughts.',
-    titlePlaceholder: 'Movie Title (e.g. Blade Runner 2049, Past Lives)',
-    bodyPlaceholder: 'Write your film review... What lingered with you? The cinematography, sound design, dialogue, or themes?',
+    desc: 'Craft a film review, ticket stub score, and cinematic thoughts.',
+    titlePlaceholder: 'Movie Title (e.g. Blade Runner 2049, Past Lives, Chungking Express)',
+    bodyPlaceholder: 'Write your film critique... What lingered with you? The cinematography, sound design, dialogue, or themes?',
     accent: 'var(--neon-rose)',
+  },
+  book: {
+    banner: '📚 LIBRARY DESK · CARD CATALOG',
+    desc: 'Record a book review, reading status, favorite quotes, and star rating.',
+    titlePlaceholder: 'Book Title (e.g. Norwegian Wood, Dune, Exhalation)',
+    bodyPlaceholder: 'Write your reader reflections, favorite excerpts, and notes on the book...',
+    accent: '#b4845c',
+  },
+  music: {
+    banner: '🎧 VINYL CRATE & MIXTAPE STUDIO',
+    desc: 'Curate a mixtape, album review, favorite tracks, and genre notes.',
+    titlePlaceholder: 'Album or Track Title (e.g. For You, Random Access Memories)',
+    bodyPlaceholder: 'Liner notes, mood, sonic impressions, and why this record matters...',
+    accent: '#4a82a0',
+  },
+  game: {
+    banner: '🎮 RETRO ARCADE · CARTRIDGE RACK',
+    desc: 'Document a retro game playthrough, rating, platform, and beaten status.',
+    titlePlaceholder: 'Game Title (e.g. Chrono Trigger, Super Metroid, Castlevania SOTN)',
+    bodyPlaceholder: 'Playthrough review, memories, difficulty, art style, and music...',
+    accent: '#00aa55',
   },
   poem: {
     banner: '❀ TYPEWRITER NOTEBOOK · STANZA DESK',
-    desc: 'Compose a poem on lined parchment with typewriter keystrokes.',
+    desc: 'Compose a poem on lined parchment with mechanical typewriter keystrokes.',
     titlePlaceholder: 'Poem Title (or untitled)',
     bodyPlaceholder: 'Type your verses...\n\nStanzas breathe with line breaks.\nListen to the keys click as you compose.',
     accent: 'var(--rose)',
@@ -166,7 +187,7 @@ export default function Editor({ init, done }) {
     );
   });
 
-  // Dedicated sub-fields per theme to make editing seamless
+  // 1. Movie states
   const [movieScore, setMovieScore] = useState(() => {
     if (init?.type === 'review' && init.extra) {
       const match = String(init.extra).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+)/);
@@ -176,7 +197,6 @@ export default function Editor({ init, done }) {
     }
     return '4.5/5';
   });
-
   const [movieYear, setMovieYear] = useState(() => {
     if (init?.type === 'review' && init.extra) {
       const match = String(init.extra).match(/\b(19\d\d|20\d\d)\b/);
@@ -184,32 +204,83 @@ export default function Editor({ init, done }) {
     }
     return new Date().getFullYear().toString();
   });
+  const [movieFormat, setMovieFormat] = useState('Cinema');
 
+  // 2. Book states
+  const [bookAuthor, setBookAuthor] = useState(() => {
+    if (init?.type === 'book' && init.extra) {
+      return init.extra.split('·')[0]?.trim() || '';
+    }
+    return '';
+  });
+  const [bookRating, setBookRating] = useState('5/5');
+  const [bookStatus, setBookStatus] = useState('Finished');
+  const [bookYear, setBookYear] = useState(() => {
+    if (init?.type === 'book' && init.extra) {
+      const match = String(init.extra).match(/\b(19\d\d|20\d\d)\b/);
+      if (match) return match[1];
+    }
+    return '';
+  });
+
+  // 3. Music states
+  const [musicArtist, setMusicArtist] = useState(() => {
+    if (init?.type === 'music' && init.extra) {
+      return init.extra.split('·')[0]?.trim() || '';
+    }
+    return '';
+  });
+  const [musicGenre, setMusicGenre] = useState('City Pop');
+  const [musicYear, setMusicYear] = useState(() => {
+    if (init?.type === 'music' && init.extra) {
+      const match = String(init.extra).match(/\b(19\d\d|20\d\d)\b/);
+      if (match) return match[1];
+    }
+    return '1982';
+  });
+  const [musicFavTrack, setMusicFavTrack] = useState('');
+
+  // 4. Game states
+  const [gamePlatform, setGamePlatform] = useState('SNES');
+  const [gameScore, setGameScore] = useState('9.5/10');
+  const [gameStatus, setGameStatus] = useState('Beaten');
+  const [gameYear, setGameYear] = useState(() => {
+    if (init?.type === 'game' && init.extra) {
+      const match = String(init.extra).match(/\b(19\d\d|20\d\d)\b/);
+      if (match) return match[1];
+    }
+    return '1995';
+  });
+
+  // 5. Bucket states
   const [bucketDone, setBucketDone] = useState(() => {
     return init?.type === 'bucket' ? !!init.extra : false;
   });
-
   const [bucketDate, setBucketDate] = useState(() => {
     return init?.type === 'bucket' ? init.extra || '' : '';
   });
 
+  // 6. Find & Project states
   const [linkUrl, setLinkUrl] = useState(() => {
     return init?.type === 'find' ? init.extra || '' : '';
   });
-
   const [projectTech, setProjectTech] = useState(() => {
     if (init?.type === 'project' && init.extra) {
       return init.extra.split('·')[0]?.trim() || '';
     }
     return '';
   });
-
   const [projectDemo, setProjectDemo] = useState(() => {
     if (init?.type === 'project' && init.extra) {
       const parts = init.extra.split('·');
       return parts.find((p) => p.trim().startsWith('http'))?.trim() || '';
     }
     return '';
+  });
+
+  // 7. Thought Color state
+  const [thoughtColor, setThoughtColor] = useState(() => {
+    return init?.type === 'thought' && init.extra ? init.extra : 'yellow';
   });
 
   const [saving, setSaving] = useState(false);
@@ -228,18 +299,52 @@ export default function Editor({ init, done }) {
   // Sync thematic helper states into f.extra
   useEffect(() => {
     if (f.type === 'review') {
-      const extraVal = `${movieScore} · ${movieYear}`.trim();
+      const extraVal = `${movieScore} · ${movieYear}${movieFormat ? ` · ${movieFormat}` : ''}`.trim();
       setF((prev) => ({ ...prev, extra: extraVal }));
+    } else if (f.type === 'book') {
+      const parts = [bookAuthor || 'Author', bookRating, bookStatus, bookYear].filter(Boolean);
+      setF((prev) => ({ ...prev, extra: parts.join(' · ') }));
+    } else if (f.type === 'music') {
+      const parts = [musicArtist || 'Artist', musicGenre, musicYear, musicFavTrack].filter(Boolean);
+      setF((prev) => ({ ...prev, extra: parts.join(' · ') }));
+    } else if (f.type === 'game') {
+      const parts = [gamePlatform, gameScore, gameStatus, gameYear].filter(Boolean);
+      setF((prev) => ({ ...prev, extra: parts.join(' · ') }));
     } else if (f.type === 'bucket') {
       const extraVal = bucketDone ? (bucketDate || 'Achieved') : '';
       setF((prev) => ({ ...prev, extra: extraVal }));
+    } else if (f.type === 'thought') {
+      setF((prev) => ({ ...prev, extra: thoughtColor }));
     } else if (f.type === 'find') {
       setF((prev) => ({ ...prev, extra: linkUrl.trim() }));
     } else if (f.type === 'project') {
       const extraVal = [projectTech.trim(), projectDemo.trim()].filter(Boolean).join(' · ');
       setF((prev) => ({ ...prev, extra: extraVal }));
     }
-  }, [f.type, movieScore, movieYear, bucketDone, bucketDate, linkUrl, projectTech, projectDemo]);
+  }, [
+    f.type,
+    movieScore,
+    movieYear,
+    movieFormat,
+    bookAuthor,
+    bookRating,
+    bookStatus,
+    bookYear,
+    musicArtist,
+    musicGenre,
+    musicYear,
+    musicFavTrack,
+    gamePlatform,
+    gameScore,
+    gameStatus,
+    gameYear,
+    bucketDone,
+    bucketDate,
+    thoughtColor,
+    linkUrl,
+    projectTech,
+    projectDemo,
+  ]);
 
   const setField = (key) => (e) => {
     setF({ ...f, [key]: e.target.value });
@@ -328,11 +433,14 @@ export default function Editor({ init, done }) {
   };
 
   // Live card preview object
-  const previewEntry = useMemo(() => ({
-    id: 'preview',
-    ...f,
-    date: new Date(),
-  }), [f]);
+  const previewEntry = useMemo(
+    () => ({
+      id: 'preview',
+      ...f,
+      date: new Date(),
+    }),
+    [f]
+  );
 
   const words = (f.body || '').trim().split(/\s+/).filter(Boolean).length;
   const rTime = readingTime(f.body);
@@ -381,7 +489,23 @@ export default function Editor({ init, done }) {
         <div className="writer-form-pane">
           {/* Title Input */}
           <div className="writer-field">
-            <label className="writer-field-label">TITLE</label>
+            <label className="writer-field-label">
+              {f.type === 'review'
+                ? 'MOVIE TITLE'
+                : f.type === 'book'
+                  ? 'BOOK TITLE'
+                  : f.type === 'music'
+                    ? 'ALBUM / TRACK TITLE'
+                    : f.type === 'game'
+                      ? 'GAME TITLE'
+                      : f.type === 'poem'
+                        ? 'POEM TITLE (OR UNTITLED)'
+                        : f.type === 'bucket'
+                          ? 'GOAL / DREAM NAME'
+                          : f.type === 'find'
+                            ? 'DISCOVERY TITLE'
+                            : 'TITLE'}
+            </label>
             <input
               placeholder={activeTheme.titlePlaceholder}
               value={f.title}
@@ -392,7 +516,7 @@ export default function Editor({ init, done }) {
           </div>
 
           {/* ============================================================== */}
-          {/* BESPOKE THEMED INPUTS                                          */}
+          {/* BESPOKE THEMED INPUTS PER SECTION                              */}
           {/* ============================================================== */}
 
           {/* 1. MOVIES (▶) */}
@@ -417,7 +541,7 @@ export default function Editor({ init, done }) {
                   </select>
                 </div>
 
-                <div className="writer-field" style={{ width: '130px' }}>
+                <div className="writer-field" style={{ width: '110px' }}>
                   <label className="writer-field-label">RELEASE YEAR</label>
                   <input
                     placeholder="e.g. 2024"
@@ -427,15 +551,204 @@ export default function Editor({ init, done }) {
                     maxLength={4}
                   />
                 </div>
+
+                <div className="writer-field" style={{ width: '130px' }}>
+                  <label className="writer-field-label">FORMAT</label>
+                  <input
+                    placeholder="e.g. 35mm / IMAX"
+                    value={movieFormat}
+                    onChange={(e) => setMovieFormat(e.target.value)}
+                    className="writer-input"
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          {/* 2. POEMS (❀) */}
+          {/* 2. BOOKS (📚) */}
+          {f.type === 'book' && (
+            <div className="writer-themed-fields book-inputs">
+              <div className="writer-field-row">
+                <div className="writer-field flex-1">
+                  <label className="writer-field-label">AUTHOR NAME</label>
+                  <input
+                    placeholder="e.g. Haruki Murakami, Ted Chiang"
+                    value={bookAuthor}
+                    onChange={(e) => setBookAuthor(e.target.value)}
+                    className="writer-input"
+                  />
+                </div>
+
+                <div className="writer-field" style={{ width: '130px' }}>
+                  <label className="writer-field-label">READING STATUS</label>
+                  <select
+                    value={bookStatus}
+                    onChange={(e) => setBookStatus(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="Finished">✓ Finished</option>
+                    <option value="Currently Reading">⏳ Reading</option>
+                    <option value="Want to Read">🔖 Want to Read</option>
+                  </select>
+                </div>
+
+                <div className="writer-field" style={{ width: '140px' }}>
+                  <label className="writer-field-label">STAR RATING</label>
+                  <select
+                    value={bookRating}
+                    onChange={(e) => setBookRating(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="5/5">★★★★★ 5/5</option>
+                    <option value="4.5/5">★★★★½ 4.5/5</option>
+                    <option value="4/5">★★★★☆ 4/5</option>
+                    <option value="3.5/5">★★★½☆ 3.5/5</option>
+                    <option value="3/5">★★★☆☆ 3/5</option>
+                    <option value="2/5">★★☆☆☆ 2/5</option>
+                  </select>
+                </div>
+
+                <div className="writer-field" style={{ width: '100px' }}>
+                  <label className="writer-field-label">PUB YEAR</label>
+                  <input
+                    placeholder="e.g. 1987"
+                    value={bookYear}
+                    onChange={(e) => setBookYear(e.target.value)}
+                    className="writer-input"
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. MUSIC & MIXTAPES (🎧) */}
+          {f.type === 'music' && (
+            <div className="writer-themed-fields music-inputs">
+              <div className="writer-field-row">
+                <div className="writer-field flex-1">
+                  <label className="writer-field-label">ARTIST / BAND</label>
+                  <input
+                    placeholder="e.g. Tatsuro Yamashita, Daft Punk"
+                    value={musicArtist}
+                    onChange={(e) => setMusicArtist(e.target.value)}
+                    className="writer-input"
+                  />
+                </div>
+
+                <div className="writer-field" style={{ width: '140px' }}>
+                  <label className="writer-field-label">GENRE</label>
+                  <select
+                    value={musicGenre}
+                    onChange={(e) => setMusicGenre(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="City Pop">City Pop</option>
+                    <option value="Ambient">Ambient</option>
+                    <option value="Synthwave">Synthwave</option>
+                    <option value="Lo-Fi Jazz">Lo-Fi Jazz</option>
+                    <option value="Soundtrack">Soundtrack</option>
+                    <option value="Electronic">Electronic</option>
+                    <option value="Post-Punk">Post-Punk</option>
+                    <option value="Hip Hop">Hip Hop</option>
+                  </select>
+                </div>
+
+                <div className="writer-field" style={{ width: '100px' }}>
+                  <label className="writer-field-label">YEAR</label>
+                  <input
+                    placeholder="e.g. 1982"
+                    value={musicYear}
+                    onChange={(e) => setMusicYear(e.target.value)}
+                    className="writer-input"
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+
+              <div className="writer-field">
+                <label className="writer-field-label">STANDOUT / FAVORITE TRACK</label>
+                <input
+                  placeholder="e.g. Sparkle, Digital Love, Resonator"
+                  value={musicFavTrack}
+                  onChange={(e) => setMusicFavTrack(e.target.value)}
+                  className="writer-input"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* 4. GAMES & ARCADE (🎮) */}
+          {f.type === 'game' && (
+            <div className="writer-themed-fields game-inputs">
+              <div className="writer-field-row">
+                <div className="writer-field" style={{ width: '140px' }}>
+                  <label className="writer-field-label">PLATFORM</label>
+                  <select
+                    value={gamePlatform}
+                    onChange={(e) => setGamePlatform(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="SNES">SNES</option>
+                    <option value="Game Boy">Game Boy</option>
+                    <option value="PlayStation">PlayStation</option>
+                    <option value="Genesis">Genesis</option>
+                    <option value="N64">N64</option>
+                    <option value="PC-DOS">PC-DOS</option>
+                    <option value="Arcade">Arcade</option>
+                    <option value="GBA">Game Boy Advance</option>
+                    <option value="Dreamcast">Dreamcast</option>
+                  </select>
+                </div>
+
+                <div className="writer-field" style={{ width: '140px' }}>
+                  <label className="writer-field-label">STATUS</label>
+                  <select
+                    value={gameStatus}
+                    onChange={(e) => setGameStatus(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="Beaten">★ Beaten</option>
+                    <option value="Playing">🕹 Playing</option>
+                    <option value="Backlog">⏳ Backlog</option>
+                  </select>
+                </div>
+
+                <div className="writer-field flex-1">
+                  <label className="writer-field-label">SCORE</label>
+                  <select
+                    value={gameScore}
+                    onChange={(e) => setGameScore(e.target.value)}
+                    className="writer-input"
+                  >
+                    <option value="10/10">10 / 10 (Masterpiece)</option>
+                    <option value="9.5/10">9.5 / 10 (Legendary)</option>
+                    <option value="9.0/10">9.0 / 10 (Outstanding)</option>
+                    <option value="8.5/10">8.5 / 10 (Great)</option>
+                    <option value="8.0/10">8.0 / 10 (Very Good)</option>
+                    <option value="7.0/10">7.0 / 10 (Good)</option>
+                  </select>
+                </div>
+
+                <div className="writer-field" style={{ width: '100px' }}>
+                  <label className="writer-field-label">YEAR</label>
+                  <input
+                    placeholder="e.g. 1995"
+                    value={gameYear}
+                    onChange={(e) => setGameYear(e.target.value)}
+                    className="writer-input"
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 5. POEMS (❀) */}
           {f.type === 'poem' && (
             <div className="writer-themed-fields poem-inputs">
               <div className="writer-field">
-                <label className="writer-field-label">EPIGRAPH / SUBTITLE (OPTIONAL)</label>
+                <label className="writer-field-label">EPIGRAPH / DEDICATION / NOTE</label>
                 <input
                   placeholder="e.g. Dedicated to..., or written on a rainy train to Delhi"
                   value={f.extra || ''}
@@ -446,7 +759,7 @@ export default function Editor({ init, done }) {
             </div>
           )}
 
-          {/* 3. BUCKET LIST (☑) */}
+          {/* 6. BUCKET LIST (☑) */}
           {f.type === 'bucket' && (
             <div className="writer-themed-fields bucket-inputs">
               <div className="writer-field-row align-center">
@@ -454,7 +767,10 @@ export default function Editor({ init, done }) {
                   <input
                     type="checkbox"
                     checked={bucketDone}
-                    onChange={(e) => setBucketDone(e.target.checked)}
+                    onChange={(e) => {
+                      playPaperTear();
+                      setBucketDone(e.target.checked);
+                    }}
                   />
                   <span>Already achieved / completed?</span>
                 </label>
@@ -473,7 +789,35 @@ export default function Editor({ init, done }) {
             </div>
           )}
 
-          {/* 4. FINDS / BOOKMARKS (⌕) */}
+          {/* 7. THOUGHTS (☁) */}
+          {f.type === 'thought' && (
+            <div className="writer-themed-fields thought-inputs">
+              <label className="writer-field-label">STICKY NOTE COLOR TINT</label>
+              <div className="thought-color-picker">
+                {[
+                  ['yellow', '🟡 Yellow'],
+                  ['pink', '🌸 Pink'],
+                  ['mint', '🍃 Mint'],
+                  ['lavender', '🪻 Lavender'],
+                  ['blue', '🌊 Sky'],
+                ].map(([c, label]) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={`color-pill ${thoughtColor === c ? 'active' : ''}`}
+                    onClick={() => {
+                      playBeep();
+                      setThoughtColor(c);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 8. FINDS / BOOKMARKS (⌕) */}
           {f.type === 'find' && (
             <div className="writer-themed-fields find-inputs">
               <div className="writer-field">
@@ -488,7 +832,7 @@ export default function Editor({ init, done }) {
             </div>
           )}
 
-          {/* 5. WORK & PROJECTS (⚙) */}
+          {/* 9. WORK & PROJECTS (⚙) */}
           {f.type === 'project' && (
             <div className="writer-themed-fields project-inputs">
               <div className="writer-field-row">
@@ -514,7 +858,7 @@ export default function Editor({ init, done }) {
             </div>
           )}
 
-          {/* 6. TIMELINE (◷) */}
+          {/* 10. TIMELINE (◷) */}
           {f.type === 'timeline' && (
             <div className="writer-themed-fields timeline-inputs">
               <div className="writer-field">
@@ -529,7 +873,7 @@ export default function Editor({ init, done }) {
             </div>
           )}
 
-          {/* 7. QUOTES (❝) */}
+          {/* 11. QUOTES (❝) */}
           {f.type === 'quote' && (
             <div className="writer-themed-fields quote-inputs">
               <div className="writer-field">
@@ -547,7 +891,15 @@ export default function Editor({ init, done }) {
           {/* Media / Image Upload */}
           <div className="writer-field image-upload-field">
             <label className="writer-field-label">
-              ATTACH PHOTO / POSTER / COVER
+              {f.type === 'review'
+                ? 'ATTACH MOVIE POSTER'
+                : f.type === 'book'
+                  ? 'ATTACH BOOK COVER'
+                  : f.type === 'music'
+                    ? 'ATTACH ALBUM JACKET'
+                    : f.type === 'game'
+                      ? 'ATTACH CARTRIDGE BOXART / SCREENSHOT'
+                      : 'ATTACH PHOTO / MEDIA'}
             </label>
             <div className="image-upload-row">
               <input
@@ -577,11 +929,17 @@ export default function Editor({ init, done }) {
                   ? 'VERSES (TYPEWRITER)'
                   : f.type === 'review'
                     ? 'FILM CRITIQUE / NOTES'
-                    : f.type === 'quote'
-                      ? 'QUOTE BODY'
-                      : f.type === 'letter'
-                        ? 'LETTER TEXT'
-                        : 'MARKDOWN CONTENT'}
+                    : f.type === 'book'
+                      ? 'READER REFLECTIONS & QUOTES'
+                      : f.type === 'music'
+                        ? 'LINER NOTES & IMPRESSIONS'
+                        : f.type === 'game'
+                          ? 'PLAYTHROUGH REVIEW'
+                          : f.type === 'quote'
+                            ? 'QUOTE BODY'
+                            : f.type === 'letter'
+                              ? 'LETTER TEXT'
+                              : 'MARKDOWN CONTENT'}
               </label>
               <span className="writer-stats">
                 {words} words · ~{rTime} min read
@@ -599,11 +957,7 @@ export default function Editor({ init, done }) {
 
           {/* Actions */}
           <div className="writer-actions-bar">
-            <button
-              onClick={save}
-              disabled={saving}
-              className="writer-save-btn"
-            >
+            <button onClick={save} disabled={saving} className="writer-save-btn">
               {saving ? 'TRANSMITTING…' : f.draft ? '💾 SAVE DRAFT' : '🚀 PUBLISH TO WIRE'}
             </button>
             <button onClick={handleCancel} className="writer-cancel-btn">
